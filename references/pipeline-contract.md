@@ -24,8 +24,8 @@ Each stage: **reads → steps → writes → GATE (pass condition) → failure h
 
 ### 1 Intake
 - reads: SA input · writes: `brief.yaml` (+ `artifacts/01-brief-snapshot.yaml`)
-- steps: collect required fields (§brief-schema) → for missing fields, ask (do not guess defaults). **Explicitly ask for the brand image files**: the customer logo and a favicon (a file path or drag-and-drop; store under `assets/customer/` and copy into `docs/public/images/`). If the SA has none, record `null` — the site uses the wordmark/theme-color placeholder and the capture manifest lists the logo as pending. Never fabricate or restyle a logo (branding.md).
-- GATE: all required brief-schema fields filled + `mode`, `audience`, `region`, `scenarios` present + **logo/favicon asked and answered** (a path or an explicit null — "never asked" fails the gate).
+- steps: collect required fields (§brief-schema) → for missing fields, ask (do not guess defaults). **Explicitly ask for the brand image files**: the customer logo and a favicon (a file path or drag-and-drop; store under `assets/customer/` and copy into `docs/public/images/`). If the SA has none, record `null` — the site uses the wordmark/theme-color placeholder and the capture manifest lists the logo as pending. Never fabricate or restyle a logo (branding.md). **Also ask for design preferences** (`design:` block — primary/accent color, mood keywords, dark/light): every field accepts `auto`, in which case derive per branding.md §Design derivation and record `source: derived` before the brief freezes.
+- GATE: all required brief-schema fields filled + `mode`, `audience`, `region`, `scenarios` present + **logo/favicon asked and answered** (a path or an explicit null — "never asked" fails the gate) + **design block present with a `source` label** (given or derived — an unlabeled palette fails).
 - failure: missing field → cannot proceed, re-ask.
 
 ### 2 Research ★

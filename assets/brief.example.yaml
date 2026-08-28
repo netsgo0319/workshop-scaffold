@@ -26,6 +26,13 @@ audience:                   # ← drives the persona evaluation matrix (persona-
   roles: [개발자, 아키텍트, 데이터/ML]
   primary_tech_level: L200  # default when a scenario does not specify
 
+design:                     # ← ASK at intake; every value may be "auto" → derived per branding.md §Design derivation
+  primary_color: "#0A2540"  # brand primary (usually from the customer logo/official brand color)
+  accent_color: auto        # auto → complementary to primary
+  mood: ["정갈한", "엔터프라이즈"]  # feel keywords (drives illustration style, hero tone, warning depth)
+  appearance: dark          # site default: dark | light (quick-* convention: dark)
+  source: given             # given (SA chose) | derived (auto) — label, never erased
+
 aws:
   services:                 # ← the research (stage 2) targets. GA/region/preview verified in feature-facts.
     - Amazon Bedrock AgentCore
