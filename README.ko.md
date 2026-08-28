@@ -27,7 +27,7 @@
 - **VitePress 사이트** — 홈·아젠다·기능 카탈로그·시나리오별 실습 페이지. `npm run docs:dev`로 바로 보고, 빌드해서 배포합니다.
 - **샘플 데이터셋** — 시나리오 로직에 맞는 현실적인 데이터(+필요 시 다국어 로케일 사본).
 - **아키텍처/플로우 다이어그램** — 공식 AWS 아이콘으로 그린 그림.
-- **이미지 슬롯** — 스크린샷·로고가 아직 안 들어간 자리를 “빵꾸”로 표시하고, 무엇을 캡처해야 하는지 매니페스트로 정리.
+- **이미지 슬롯** — 스크린샷·로고가 아직 안 들어간 자리를 빈 공간으로 표시하고, 무엇을 캡처해야 하는지 매니페스트로 정리.
 - **`brief.yaml`** — 이 워크샵의 고정값(고객사·규모·일시·직군·시나리오·기술레벨…)을 담은 단일 출처(SSOT).
 - **`artifacts/`** — 단계별 중간 산출물(연구 결과·청사진·페르소나 리뷰). 왜 이렇게 만들어졌는지 되짚을 수 있습니다.
 
@@ -64,21 +64,59 @@ claude plugin install workshop-scaffold
 
 ---
 
+## 무엇이 들어있나
+
+**스킬** — 대화에서 호출하는 것:
+
+| 스킬 | 하는 일 |
+|---|---|
+| `workshop-scaffold` | **주로 쓰는 것** — 아래 8단계 파이프라인 전체 |
+| `aws-fact-check` | 단독 사용: GA/리전/정확한 기능명 검증, 모든 주장에 신뢰도 라벨 |
+| `persona-review` | 단독 사용: 아무 문서·덱·사이트나 레벨×직군 페르소나 패널로 평가 |
+
+**커맨드** — 결정론적 진입점:
+
+| 커맨드 | 하는 일 |
+|---|---|
+| `/workshop-walkthrough` | 참가자↔작성자 수정 루프 — QA 게이트를 여는 유일한 방법 |
+| `/workshop-check` | 기계 QA(5축) + 참가자 플로우 리뷰 |
+| `/new-workshop` | 골격 복사 + 브랜딩 토큰 치환 (파이프라인이 조립 단계에서 스스로 호출) |
+
+**에이전트:**
+
+- `participant-walker` — 신선한 눈의 참가자: 배포된 사이트를 실제 브라우저(Chrome CDP)로 클릭하며 걷고, 실행 가능한 단계를 전부 실행하고, 모든 판정에 **executed / inspected / untestable-here** 라벨을 답니다. 라운드마다 새 인스턴스 — 작성자가 자기 수정을 검증하는 일이 없게.
+
+**생성된 워크샵마다 함께 심어지는 강제 장치** — 산문이 아니라 훅·게이트:
+
+- **Stop 훅** → 매 턴 끝에 `workshop-check.sh --fix` 자동 실행 (데이터셋·발표자노트·이모지·에셋·비주얼)
+- **PreToolUse 훅** → `protect-brief.mjs`가 인테이크 이후 `brief.yaml` 편집을 차단 — 변경은 `artifacts/00-amendments.md`로만
+- **`scripts/gate.sh <단계>`** → 선행 산출물 없는 단계 착수를 하드 차단, 워크스루가 `WALKTHROUGH_RESULT: CLEAN`으로 끝나기 전엔 QA 진입 차단
+
+**에셋·레퍼런스** — 파이프라인이 딛고 만드는 것:
+
+- `assets/scaffold/` — 동작하는 VitePress 골격 (테마·컴포넌트·훅 내장)
+- `assets/workshop-pipeline.workflow.mjs` — 같은 파이프라인의 멀티에이전트 Workflow 버전
+- `references/` — 계약 문서들: format-spec · component-api · research-discipline · diagram-recipes · persona-rubric · branding · pipeline-contract · templates/
+- `assets/brief.example.yaml` (입력 예시) · `examples/hanbitpay/` (실제 실행 중간 산출물)
+
+---
+
 ## 빠른 시작 (아무것도 없는 상태에서)
 
 ```bash
-# 1. 새 폴더에 빈 워크샵 골격 생성
-bash ~/.claude/skills/workshop-scaffold/scripts/new-workshop.sh ../my-workshop \
-  --title "ACME × Bedrock" --name my-workshop --color "#0972d3"
+# 1. 설치(1회) 후, 플러그인이 로드되도록 Claude Code를 재시작
+claude plugin marketplace add netsgo0319/workshop-scaffold
+claude plugin install workshop-scaffold
 
-cd ../my-workshop && npm install && npm run docs:dev   # 빈 골격 미리보기
-
-# 2. 스킬로 채우기 — Claude Code에서
-/workshop-scaffold
-#    (또는: "이 주제로 워크샵 만들어줘: …")
+# 2. 새 빈 폴더에서 Claude Code 실행
+mkdir my-workshop && cd my-workshop && claude
 ```
 
-인테이크가 `brief.yaml`을 쓰고, 이후 단계가 콘텐츠를 채우고 검증합니다.
+```
+/workshop-scaffold        # 또는 그냥: "이 주제로 워크샵 만들어줘: …"
+```
+
+이게 전부입니다 — 골격 생성은 스킬이 알아서 합니다(조립 단계에서 `/new-workshop`을 스스로 호출). 인테이크 질문에 답하면 이후 단계가 콘텐츠를 채우고 검증합니다.
 
 ---
 
@@ -142,36 +180,6 @@ cd ../my-workshop && npm install && npm run docs:dev   # 빈 골격 미리보기
 - **발표자 전용 내용**(시연 팁 등)은 배포되는 `docs/` 밖 `PRESENTER_NOTES.md`에만 둡니다.
 
 생성된 사이트의 기본 테마는 [`references/format-spec.md`](references/format-spec.md)의 규격을 따릅니다(예: 내비게이션 바는 불투명 배경 + 상단 고정).
-
----
-
-## 스킬 구성
-
-| 경로 | 내용 |
-|---|---|
-| `skills/workshop-scaffold/` | Claude가 따르는 파이프라인 오케스트레이터 |
-| `skills/aws-fact-check/` | 단독 스킬: GA/리전/preview + 신뢰도 라벨 검증 |
-| `skills/persona-review/` | 단독 스킬: 아무 산출물이나 레벨×직군 패널 평가 |
-| `commands/new-workshop.md` | `/new-workshop` — 워크샵 폴더 스캐폴딩 |
-| `commands/workshop-check.md` | `/workshop-check` — QA 축 점검 + 참가자 플로우 리뷰 |
-| `assets/scaffold/` | 복사해서 채우는 빈 VitePress 골격 |
-| `assets/workshop-pipeline.workflow.mjs` | 파이프라인의 멀티에이전트 워크플로우 |
-| `scripts/new-workshop.sh` | 골격을 새 폴더로 복사 + 값 치환 (강제 스크립트·훅 동봉) |
-| `scripts/workshop-check.sh` | QA 점검(에셋/데이터셋/발표자노트/비주얼 + 빌드) — 생성된 워크샵에서는 Stop 훅으로도 자동 실행 |
-| `scripts/gate.sh` | 단계 진입 하드 게이트 — 선행 산출물 없으면 착수 차단 |
-| `scripts/image-manifest.mjs` | 캡처 대기 스크린샷 목록화 |
-| `commands/workshop-walkthrough.md` | `/workshop-walkthrough` — 참가자 워크스루↔작성자 수정 루프(gate.sh 7 통과 조건) |
-| `agents/participant-walker.md` | 플러그인 에이전트: 실제로 따라해 보는 신선한 눈의 참가자 |
-| `references/format-spec.md` | 결과물 구조·테마 규격 |
-| `references/component-api.md` | 페이지에서 쓰는 VitePress 컴포넌트 |
-| `references/research-discipline.md` | AWS 사실 검증·라벨 규율 |
-| `references/diagram-recipes.md` | Mermaid / drawio / Excalidraw 레시피 |
-| `references/persona-rubric.md` | 레벨×직군 페르소나 평가 기준 |
-| `references/branding.md` | 고객 맞춤·co-branding 규약 |
-| `references/pipeline-contract.md` | 단계별 게이트·불변식(고급) |
-| `references/templates/` | 기능 페이지·씬 템플릿 |
-| `assets/brief.example.yaml` | 입력 예시 |
-| `examples/hanbitpay/` | 실제 실행 중간 산출물 예시 |
 
 ---
 

@@ -62,21 +62,59 @@ Restart Claude Code after installing. (Cloning straight into `~/.claude/skills/`
 
 ---
 
+## What's inside
+
+**Skills** — what you invoke in chat:
+
+| Skill | What it does |
+|---|---|
+| `workshop-scaffold` | **The one you run** — the full 8-stage pipeline below |
+| `aws-fact-check` | Standalone: verify GA / region / exact feature names, every claim confidence-labeled |
+| `persona-review` | Standalone: level×role persona panel on any doc, deck, or site |
+
+**Commands** — deterministic entry points:
+
+| Command | What it does |
+|---|---|
+| `/workshop-walkthrough` | Participant↔author fix loop — the only way to clear the QA gate |
+| `/workshop-check` | Mechanical QA (5 axes) + participant-flow review |
+| `/new-workshop` | Copy the skeleton + substitute branding tokens (the pipeline calls this itself during Assemble) |
+
+**Agent:**
+
+- `participant-walker` — a fresh-eyes participant: browser-walks the deployed site (Chrome CDP), executes every executable step, and labels each check **executed / inspected / untestable-here**. A new instance every round — never the author checking its own fixes.
+
+**Enforcement shipped into every generated workshop** — hooks and gates, not prose:
+
+- **Stop hook** → `workshop-check.sh --fix` runs after every turn (datasets, presenter notes, emoji, assets, visual-first)
+- **PreToolUse hook** → `protect-brief.mjs` blocks editing `brief.yaml` after intake — changes go through `artifacts/00-amendments.md`
+- **`scripts/gate.sh <stage>`** → hard-blocks any stage whose prerequisite artifact is missing, and blocks QA until a walkthrough round ends `WALKTHROUGH_RESULT: CLEAN`
+
+**Assets & references** — what the pipeline builds from:
+
+- `assets/scaffold/` — the working VitePress skeleton (theme, components, hooks preinstalled)
+- `assets/workshop-pipeline.workflow.mjs` — the same pipeline as a multi-agent Workflow
+- `references/` — the contracts: format-spec · component-api · research-discipline · diagram-recipes · persona-rubric · branding · pipeline-contract · templates/
+- `assets/brief.example.yaml` (input example) · `examples/hanbitpay/` (a real run's intermediate artifacts)
+
+---
+
 ## Quick start (from nothing)
 
 ```bash
-# 1. Scaffold an empty workshop into a new folder
-bash ~/.claude/skills/workshop-scaffold/scripts/new-workshop.sh ../my-workshop \
-  --title "ACME × Bedrock" --name my-workshop --color "#0972d3"
+# 1. Install once, then RESTART Claude Code so the plugin loads
+claude plugin marketplace add netsgo0319/workshop-scaffold
+claude plugin install workshop-scaffold
 
-cd ../my-workshop && npm install && npm run docs:dev   # preview the empty skeleton
-
-# 2. Fill it with the skill: in Claude Code, run
-/workshop-scaffold
-#    (or just: "build a workshop about … for …")
+# 2. In a new empty folder, start Claude Code and run the skill
+mkdir my-workshop && cd my-workshop && claude
 ```
 
-Intake writes `brief.yaml`, then the pipeline fills and verifies the content stage by stage.
+```
+/workshop-scaffold        # or just: "build a workshop about … for …"
+```
+
+That's all — the skill scaffolds the folder itself (it runs `/new-workshop` internally during Assemble), asks the intake questions, then generates and verifies the content stage by stage.
 
 ---
 
@@ -140,36 +178,6 @@ To protect the credibility of what it produces, the skill deliberately **won't**
 - **Presenter-only content** (demo tips) stays in `PRESENTER_NOTES.md`, outside the deployed `docs/`.
 
 The generated site's base theme follows [`references/format-spec.md`](references/format-spec.md) (e.g. the nav bar is opaque and pinned to the top).
-
----
-
-## What's in the skill
-
-| Path | What it is |
-|---|---|
-| `skills/workshop-scaffold/` | The pipeline orchestrator Claude follows |
-| `skills/aws-fact-check/` | Standalone skill: verify GA/region/preview + confidence labels |
-| `skills/persona-review/` | Standalone skill: level×role panel review of any artifact |
-| `commands/new-workshop.md` | `/new-workshop` — scaffold a workshop folder |
-| `commands/workshop-check.md` | `/workshop-check` — QA axes + participant-flow review |
-| `assets/scaffold/` | The empty VitePress skeleton that gets copied and filled |
-| `assets/workshop-pipeline.workflow.mjs` | The pipeline as a multi-agent workflow |
-| `scripts/new-workshop.sh` | Copy the skeleton into a new folder + substitute values (bundles the enforcement scripts & hooks) |
-| `scripts/workshop-check.sh` | QA checks (assets / datasets / presenter notes / visuals + build) — also runs as a Stop hook in the generated workshop |
-| `scripts/gate.sh` | Hard stage-entry gate — blocks a stage whose prerequisite artifact is missing |
-| `scripts/image-manifest.mjs` | List capture-pending screenshots |
-| `commands/workshop-walkthrough.md` | `/workshop-walkthrough` — participant walkthrough↔author-fix loop (clears gate.sh 7) |
-| `agents/participant-walker.md` | Plugin agent: fresh-eyes participant that follows the workshop for real |
-| `references/format-spec.md` | Output structure & theme spec |
-| `references/component-api.md` | The VitePress components you write with |
-| `references/research-discipline.md` | How AWS facts get verified & labeled |
-| `references/diagram-recipes.md` | Mermaid / drawio / Excalidraw recipes |
-| `references/persona-rubric.md` | Level×role persona review criteria |
-| `references/branding.md` | Customer tailoring & co-branding rules |
-| `references/pipeline-contract.md` | Per-stage gates & invariants (advanced) |
-| `references/templates/` | Feature-page and scene templates |
-| `assets/brief.example.yaml` | Example input |
-| `examples/hanbitpay/` | A real run's intermediate artifacts |
 
 ---
 
