@@ -42,14 +42,15 @@ claude plugin install workshop-scaffold
 
 스킬 3개 — `workshop-scaffold`(전체 파이프라인), `aws-fact-check`(GA/리전/라벨 검증 단독), `persona-review`(레벨×직군 패널 평가 단독) — 와 커맨드 2개(`/new-workshop`, `/workshop-check`)가 설치됩니다.
 
-**또는 일반 스킬로 클론** (파이프라인 스킬만, 커맨드 없음):
+**또는 로컬 클론에서** (오프라인/개발용):
 
 ```bash
-git clone https://github.com/netsgo0319/workshop-scaffold-skill.git \
-  ~/.claude/skills/workshop-scaffold
+git clone https://github.com/netsgo0319/workshop-scaffold-skill.git
+claude plugin marketplace add ./workshop-scaffold-skill
+claude plugin install workshop-scaffold
 ```
 
-설치 후 Claude Code를 다시 시작하세요.
+설치 후 Claude Code를 다시 시작하세요. (`~/.claude/skills/`로 바로 클론하는 방식은 이제 동작하지 않습니다 — 스킬이 레포 루트가 아니라 `skills/` 아래에 있습니다.)
 
 ---
 

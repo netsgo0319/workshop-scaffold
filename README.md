@@ -40,14 +40,15 @@ claude plugin install workshop-scaffold
 
 You get three skills — `workshop-scaffold` (the full pipeline), `aws-fact-check` (standalone GA/region/label verification), `persona-review` (standalone level×role panel review) — and two commands: `/new-workshop`, `/workshop-check`.
 
-**Or clone as a plain skill** (pipeline skill only, no commands):
+**Or from a local clone** (air-gapped / for development):
 
 ```bash
-git clone https://github.com/netsgo0319/workshop-scaffold-skill.git \
-  ~/.claude/skills/workshop-scaffold
+git clone https://github.com/netsgo0319/workshop-scaffold-skill.git
+claude plugin marketplace add ./workshop-scaffold-skill
+claude plugin install workshop-scaffold
 ```
 
-Restart Claude Code after installing.
+Restart Claude Code after installing. (Cloning straight into `~/.claude/skills/` no longer works — the skills live under `skills/`, not the repo root.)
 
 ---
 
