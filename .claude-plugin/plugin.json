@@ -1,0 +1,6 @@
+{
+  "name": "workshop-scaffold",
+  "version": "0.1.0",
+  "description": "SA가 주제·시나리오·대상 고객을 던지면 검증된 quick-* VitePress 형식으로 워크샵을 생성하고 레벨×직군 페르소나로 평가·개선하는 스킬",
+  "skills": ["."]
+}
