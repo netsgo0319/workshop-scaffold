@@ -31,14 +31,23 @@ One run produces, in a target folder:
 
 ## Install
 
-Clone into your Claude Code skills directory:
+**As a plugin (recommended)** — this repo is its own marketplace:
+
+```bash
+claude plugin marketplace add netsgo0319/workshop-scaffold-skill
+claude plugin install workshop-scaffold
+```
+
+You get three skills — `workshop-scaffold` (the full pipeline), `aws-fact-check` (standalone GA/region/label verification), `persona-review` (standalone level×role panel review) — and two commands: `/new-workshop`, `/workshop-check`.
+
+**Or clone as a plain skill** (pipeline skill only, no commands):
 
 ```bash
 git clone https://github.com/netsgo0319/workshop-scaffold-skill.git \
   ~/.claude/skills/workshop-scaffold
 ```
 
-If it's distributed through a plugin marketplace, install it there instead. Restart Claude Code and the skill appears in the skills list.
+Restart Claude Code after installing.
 
 ---
 
@@ -125,7 +134,11 @@ The generated site's base theme follows [`references/format-spec.md`](references
 
 | Path | What it is |
 |---|---|
-| `SKILL.md` | The orchestrator Claude follows |
+| `skills/workshop-scaffold/` | The pipeline orchestrator Claude follows |
+| `skills/aws-fact-check/` | Standalone skill: verify GA/region/preview + confidence labels |
+| `skills/persona-review/` | Standalone skill: level×role panel review of any artifact |
+| `commands/new-workshop.md` | `/new-workshop` — scaffold a workshop folder |
+| `commands/workshop-check.md` | `/workshop-check` — QA axes + participant-flow review |
 | `assets/scaffold/` | The empty VitePress skeleton that gets copied and filled |
 | `assets/workshop-pipeline.workflow.mjs` | The pipeline as a multi-agent workflow |
 | `scripts/new-workshop.sh` | Copy the skeleton into a new folder + substitute values (bundles the enforcement scripts & hooks) |

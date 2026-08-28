@@ -33,14 +33,23 @@
 
 ## 설치
 
-Claude Code 스킬 디렉토리에 클론합니다.
+**플러그인으로 설치 (권장)** — 이 레포 자체가 마켓플레이스입니다:
+
+```bash
+claude plugin marketplace add netsgo0319/workshop-scaffold-skill
+claude plugin install workshop-scaffold
+```
+
+스킬 3개 — `workshop-scaffold`(전체 파이프라인), `aws-fact-check`(GA/리전/라벨 검증 단독), `persona-review`(레벨×직군 패널 평가 단독) — 와 커맨드 2개(`/new-workshop`, `/workshop-check`)가 설치됩니다.
+
+**또는 일반 스킬로 클론** (파이프라인 스킬만, 커맨드 없음):
 
 ```bash
 git clone https://github.com/netsgo0319/workshop-scaffold-skill.git \
   ~/.claude/skills/workshop-scaffold
 ```
 
-플러그인 마켓플레이스로 배포된 경우 그쪽에서 설치해도 됩니다. Claude Code를 다시 시작하면 스킬 목록에 잡힙니다.
+설치 후 Claude Code를 다시 시작하세요.
 
 ---
 
@@ -127,7 +136,11 @@ cd ../my-workshop && npm install && npm run docs:dev   # 빈 골격 미리보기
 
 | 경로 | 내용 |
 |---|---|
-| `SKILL.md` | Claude가 따르는 오케스트레이터 |
+| `skills/workshop-scaffold/` | Claude가 따르는 파이프라인 오케스트레이터 |
+| `skills/aws-fact-check/` | 단독 스킬: GA/리전/preview + 신뢰도 라벨 검증 |
+| `skills/persona-review/` | 단독 스킬: 아무 산출물이나 레벨×직군 패널 평가 |
+| `commands/new-workshop.md` | `/new-workshop` — 워크샵 폴더 스캐폴딩 |
+| `commands/workshop-check.md` | `/workshop-check` — QA 축 점검 + 참가자 플로우 리뷰 |
 | `assets/scaffold/` | 복사해서 채우는 빈 VitePress 골격 |
 | `assets/workshop-pipeline.workflow.mjs` | 파이프라인의 멀티에이전트 워크플로우 |
 | `scripts/new-workshop.sh` | 골격을 새 폴더로 복사 + 값 치환 (강제 스크립트·훅 동봉) |

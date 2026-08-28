@@ -1,6 +1,17 @@
 {
   "name": "workshop-scaffold",
-  "version": "0.1.0",
-  "description": "Generate a hands-on AWS workshop from a topic, scenarios, and target customer in the proven quick-* VitePress format, then evaluate and improve it with a level×role persona panel.",
-  "skills": ["."]
+  "version": "0.2.0",
+  "description": "Generate a hands-on AWS workshop from a topic, scenarios, and target customer in the proven quick-* VitePress format — plus standalone AWS fact-checking and level×role persona review.",
+  "author": { "name": "yejinkm" },
+  "repository": "https://github.com/netsgo0319/workshop-scaffold-skill",
+  "keywords": ["aws", "workshop", "vitepress", "scaffold", "persona-review", "fact-check"],
+  "skills": [
+    "./skills/workshop-scaffold",
+    "./skills/aws-fact-check",
+    "./skills/persona-review"
+  ],
+  "commands": [
+    "./commands/new-workshop.md",
+    "./commands/workshop-check.md"
+  ]
 }

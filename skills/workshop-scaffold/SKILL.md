@@ -5,6 +5,8 @@ description: Generate a complete hands-on AWS workshop from a topic, scenarios, 
 
 # Workshop Scaffold
 
+> **Paths in this file**: shared assets live at the **plugin root**, two levels up from this SKILL.md — `references/`, `scripts/`, `assets/`, `examples/` all resolve there. `scripts/gate.sh` / `workshop-check.sh` / `image-manifest.mjs` invocations inside pipeline stages refer to the **generated workshop's own bundled copies** (cwd = the workshop), which `new-workshop.sh` puts there.
+
 Turn **topic + scenarios + target customer** into one complete quick-\* VitePress workshop. Fill the proven skeleton in `assets/scaffold/` — don't invent structure. Explain with visuals, not prose (INV-8). Verify AWS facts fresh, never from memory.
 
 Self-contained: skeleton, scripts, hooks, and references are all bundled — a user starting from nothing can build and deploy end to end.
