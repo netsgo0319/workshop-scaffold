@@ -46,6 +46,8 @@ For every AWS feature a scenario relies on, record:
 3. **Web search**: use to find the doc/announcement, then cite the primary AWS source — don't stop at a blog's paraphrase. Label by what the primary source supports.
 4. **No access**: label everything `needs-check`, say so plainly in the artifact, and list each `needs-check` item in the pre-generation to-do (GATE-2c). Do not invent a plausible answer.
 
+> **Running on Amazon Bedrock (3P)?** The WebSearch tool does not exist there (documented: Claude Code Bedrock docs). Verify via **WebFetch on known AWS URLs** (Regional Services List, docs pages, What's New), an **AWS docs MCP**, or the **`aws` CLI** instead. Everything else in this skill — MCP tools (incl. Chrome CDP), subagents, hooks, gates, `claude -p` — is client-side and works on Bedrock. Model aliases (`haiku` etc.) resolve to Bedrock model IDs that must be enabled in the account; pin `ANTHROPIC_DEFAULT_*_MODEL` for team rollouts.
+
 Prefer a managed service the customer may not know exists over hand-rolling: if an AWS service overlaps what the scenario builds, note it — with region / preview / constraints — even when the scenario ends up not using it.
 
 ## Naming ambiguity (GATE-2b)
