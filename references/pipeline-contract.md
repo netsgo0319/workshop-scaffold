@@ -71,6 +71,12 @@ Each stage: **reads → steps → writes → GATE (pass condition) → failure h
 - **GATE-6a panel completeness**: number of active cells == number of produced reviews (INV-5). Re-run to fill any missing cell.
 - **GATE-6b "all good" is void**: each persona has ≥ 2 findings + a concrete fix. An empty review is void.
 - **GATE-6c clear blockers**: 0 blockers remaining after applying. Max 2 rounds; if any remain, state them as "known limitations" in the handoff.
+- **GATE-6d walkthrough loop (follow, don't just read)**: personas *critique*; this gate *executes*. Loop until a clean round (max 3 rounds):
+  1. a **fresh-eyes participant agent** (no prior context of this build) follows the workshop page by page in participant order and **actually executes every executable instruction** — dataset downloads exist, referenced pages/links resolve, copy-paste prompts are self-contained, setup commands are correct, the site builds, and the deploy instructions actually deploy (real when credentials and a safe target exist, otherwise dry-run and **labeled** as such). Writes `artifacts/06b-walkthrough-round-N.md` (page | severity | step followed | what happened | fix) + a completion verdict ("where would I give up?").
+  2. an **author agent** applies the fixes (blockers & majors), rebuilds, and records what changed.
+  3. next round re-walks **only from a fresh agent** — never the author checking its own fixes.
+  - Pass: a round with 0 blockers and 0 majors. Leftovers after round 3 → "known limitations" in the handoff.
+  - **Deterministic enforcement:** the walker is the plugin agent `workshop-scaffold:participant-walker` (read-only tools; a NEW instance per round). Each round artifact **must end with the machine-checked marker** `WALKTHROUGH_RESULT: CLEAN` or `WALKTHROUGH_RESULT: blockers=<n> majors=<n> minors=<n>`. `scripts/gate.sh 7` hard-blocks QA until the latest round is CLEAN, and `workshop-check.sh` (Stop hook) warns whenever scenario content exists without a clean round.
 - failure: a failed cell is re-run alone per INV-3.
 
 ### 7 QA gate

@@ -38,7 +38,7 @@ claude plugin marketplace add netsgo0319/workshop-scaffold-skill
 claude plugin install workshop-scaffold
 ```
 
-You get three skills — `workshop-scaffold` (the full pipeline), `aws-fact-check` (standalone GA/region/label verification), `persona-review` (standalone level×role panel review) — and two commands: `/new-workshop`, `/workshop-check`.
+You get three skills — `workshop-scaffold` (the full pipeline), `aws-fact-check` (standalone GA/region/label verification), `persona-review` (standalone level×role panel review) — and three commands: `/new-workshop`, `/workshop-check`, `/workshop-walkthrough`.
 
 **Or from a local clone** (air-gapped / for development):
 
@@ -105,7 +105,7 @@ The skill runs these in order. In `staged` mode it **pauses at the ★ stages fo
 3. **Blueprint ★** — scenario arc, scene decomposition, feature↔scene mapping, dataset & diagram requirements
 4. **Generate** — fill feature pages, scenes, datasets, diagrams, image slots
 5. **Assemble** — wire up VitePress config / nav / i18n and build
-6. **Persona review** — a level×role panel matching your audience reads it and produces fixes → applied
+6. **Persona review + walkthrough loop** — a level×role panel reads it, then a fresh-eyes participant agent **follows it for real** (executes steps, checks links/datasets/build/deploy); an author agent fixes what it hits, looping until a clean round
 7. **QA gate** — check assets, datasets, presenter notes, flows + a passing build
 8. **Handoff** — capture list, presenter notes, deploy instructions
 
@@ -146,6 +146,8 @@ The generated site's base theme follows [`references/format-spec.md`](references
 | `scripts/workshop-check.sh` | QA checks (assets / datasets / presenter notes / visuals + build) — also runs as a Stop hook in the generated workshop |
 | `scripts/gate.sh` | Hard stage-entry gate — blocks a stage whose prerequisite artifact is missing |
 | `scripts/image-manifest.mjs` | List capture-pending screenshots |
+| `commands/workshop-walkthrough.md` | `/workshop-walkthrough` — participant walkthrough↔author-fix loop (clears gate.sh 7) |
+| `agents/participant-walker.md` | Plugin agent: fresh-eyes participant that follows the workshop for real |
 | `references/format-spec.md` | Output structure & theme spec |
 | `references/component-api.md` | The VitePress components you write with |
 | `references/research-discipline.md` | How AWS facts get verified & labeled |
@@ -161,6 +163,6 @@ The generated site's base theme follows [`references/format-spec.md`](references
 
 ## Troubleshooting
 
-- **The skill isn't picked up** → confirm `~/.claude/skills/workshop-scaffold/SKILL.md` exists and restart Claude Code.
+- **The skill isn't picked up** → `claude plugin list` should show `workshop-scaffold` enabled; restart Claude Code after installing.
 - **The build fails** → in the generated folder, `npm ci` then `npm run docs:build`. Check you're on Node 18+.
 - **AWS info looks stale** → region/GA facts are point-in-time. Before deploying, re-check the labels and `confirmed_date` in `artifacts/`.

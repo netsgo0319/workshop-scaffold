@@ -20,7 +20,7 @@ Self-contained: skeleton, scripts, hooks, and references are all bundled — a u
 3. **Blueprint ★** → `artifacts/03-blueprint.md`. Scenario arc, scene decomposition, feature→scene mapping, dataset needs, **a planned visual per scene** (GATE-3e), open questions — all closed before stage 4.
 4. **Generate** → `docs/**`, `demo_datasets/**`, `artifacts/04-image-manifest.json`. Fill templates (`references/templates/`), datasets, diagrams (`references/diagram-recipes.md`), branding (`references/branding.md`). Every scene page gets ≥1 visual (GATE-4d).
 5. **Assemble** → build. Copy skeleton via `scripts/new-workshop.sh` (bundles the enforcement scripts + `.claude/` hooks into the workshop), wire config/nav/i18n, build clean.
-6. **Persona review** → `artifacts/06-persona-review.md`. Level×role panel per `references/persona-rubric.md`, parallel cells, apply blockers/majors, rebuild.
+6. **Persona review + walkthrough loop** → `artifacts/06-persona-review.md`, `06b-walkthrough-round-N.md`. Level×role panel per `references/persona-rubric.md` (parallel cells, apply blockers/majors, rebuild). Then GATE-6d: a fresh-eyes participant agent **follows the workshop for real** — executes every executable step, checks links/datasets/prompts/build/deploy — an author agent fixes what it hits, and the loop repeats with a new fresh agent until a clean round (max 3).
 7. **QA** → `artifacts/07-qa-report.md`. `bash scripts/workshop-check.sh --full`.
 8. **Handoff** → `artifacts/08-handoff.md`. Capture manifest (`node scripts/image-manifest.mjs`), presenter notes pointer, deploy steps, known limitations.
 

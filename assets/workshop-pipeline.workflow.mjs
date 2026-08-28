@@ -8,6 +8,7 @@ export const meta = {
     { title: 'Generate' },
     { title: 'Assemble' },
     { title: 'Persona' },
+    { title: 'Walkthrough' },
     { title: 'QA' },
     { title: 'Handoff' },
   ],
@@ -202,6 +203,32 @@ if (blockers.length || majors.length) {
     { phase: 'Persona', effort: 'high' }
   )
 }
+
+// ── Stage 6d: Walkthrough loop (follow for real → author fixes → fresh re-walk) ──
+phase('Walkthrough')
+let walkClean = false
+let lastVerdict = null
+for (let round = 1; round <= 3 && !walkClean; round++) {
+  // Fresh-eyes participant: a NEW agent each round (never the author checking itself).
+  const walk = await agent(
+    `You are a first-time participant with NO context of how this workshop was built (round ${round}). Read ${ROOT}/brief.yaml for the audience tech level, then FOLLOW the workshop under ${ROOT}/docs page by page in participant order and EXECUTE every executable instruction: referenced files/datasets exist, links resolve, copy-paste prompts are self-contained, setup commands are correct, \`npm ci && npm run docs:build\` passes, and the deploy instructions work (real deploy only with credentials and a safe target — otherwise dry-run, labeled). Do NOT edit any file. WRITE ${ROOT}/artifacts/06b-walkthrough-round-${round}.md (page | severity blocker/major/minor | step followed | what happened | fix) + a completion verdict ("could I finish alone? where would I give up?"), ending with the exact marker line WALKTHROUGH_RESULT: CLEAN or WALKTHROUGH_RESULT: blockers=<n> majors=<n> minors=<n> (gate.sh 7 checks it). Return the structured review.`,
+    { phase: 'Walkthrough', schema: REVIEW, label: `walk:round${round}`, agentType: 'workshop-scaffold:participant-walker' }
+  )
+  const found = (walk && walk.findings) || []
+  const mustFix = found.filter((f) => f.severity === 'blocker' || f.severity === 'major')
+  lastVerdict = walk && walk.persona
+  log(`Walkthrough round ${round}: ${found.length} findings (${mustFix.length} blocker/major)`)
+  if (!mustFix.length) {
+    walkClean = true
+    break
+  }
+  // Author agent applies the fixes and rebuilds.
+  await agent(
+    `Author-fix round ${round}: apply these walkthrough fixes to the workshop under ${ROOT}, rebuild, and append a "changed in round ${round}" list to ${ROOT}/artifacts/06b-walkthrough-round-${round}.md: ${JSON.stringify(mustFix)}. Anything you cannot decide goes into the artifact as an open question — never silently skipped.`,
+    { phase: 'Walkthrough', label: `fix:round${round}`, effort: 'high' }
+  )
+}
+if (!walkClean) log('Walkthrough not clean after 3 rounds — remaining findings go to the handoff as known limitations (GATE-6d).')
 
 // ── Stage 7: QA gate ────────────────────────────────────────────
 phase('QA')

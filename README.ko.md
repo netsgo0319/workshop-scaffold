@@ -40,7 +40,7 @@ claude plugin marketplace add netsgo0319/workshop-scaffold-skill
 claude plugin install workshop-scaffold
 ```
 
-스킬 3개 — `workshop-scaffold`(전체 파이프라인), `aws-fact-check`(GA/리전/라벨 검증 단독), `persona-review`(레벨×직군 패널 평가 단독) — 와 커맨드 2개(`/new-workshop`, `/workshop-check`)가 설치됩니다.
+스킬 3개 — `workshop-scaffold`(전체 파이프라인), `aws-fact-check`(GA/리전/라벨 검증 단독), `persona-review`(레벨×직군 패널 평가 단독) — 와 커맨드 3개(`/new-workshop`, `/workshop-check`, `/workshop-walkthrough`)가 설치됩니다.
 
 **또는 로컬 클론에서** (오프라인/개발용):
 
@@ -107,7 +107,7 @@ cd ../my-workshop && npm install && npm run docs:dev   # 빈 골격 미리보기
 3. **청사진 ★** — 시나리오 아크·씬 분해·기능↔씬 매핑·데이터셋/다이어그램 요구 정리
 4. **생성** — 기능 페이지·씬·데이터셋·다이어그램·이미지 슬롯 채우기
 5. **조립** — VitePress config·내비·다국어 배선 후 빌드
-6. **페르소나 평가** — 청중에 맞는 레벨×직군 패널이 읽고 개선점 도출 → 반영
+6. **페르소나 평가 + 워크스루 루프** — 레벨×직군 패널이 읽고, 이어서 신선한 눈의 참가자 에이전트가 **실제로 따라합니다**(단계 실행·링크/데이터셋/빌드/배포 확인). 작성자 에이전트가 걸린 곳을 고치고, 클린 라운드가 나올 때까지 반복
 7. **QA 게이트** — 에셋·데이터셋·발표자노트·플로우 점검 + 빌드 통과
 8. **핸드오프** — 캡처할 이미지 목록·발표자 노트·배포 안내 정리
 
@@ -148,6 +148,8 @@ cd ../my-workshop && npm install && npm run docs:dev   # 빈 골격 미리보기
 | `scripts/workshop-check.sh` | QA 점검(에셋/데이터셋/발표자노트/비주얼 + 빌드) — 생성된 워크샵에서는 Stop 훅으로도 자동 실행 |
 | `scripts/gate.sh` | 단계 진입 하드 게이트 — 선행 산출물 없으면 착수 차단 |
 | `scripts/image-manifest.mjs` | 캡처 대기 스크린샷 목록화 |
+| `commands/workshop-walkthrough.md` | `/workshop-walkthrough` — 참가자 워크스루↔작성자 수정 루프(gate.sh 7 통과 조건) |
+| `agents/participant-walker.md` | 플러그인 에이전트: 실제로 따라해 보는 신선한 눈의 참가자 |
 | `references/format-spec.md` | 결과물 구조·테마 규격 |
 | `references/component-api.md` | 페이지에서 쓰는 VitePress 컴포넌트 |
 | `references/research-discipline.md` | AWS 사실 검증·라벨 규율 |
@@ -163,6 +165,6 @@ cd ../my-workshop && npm install && npm run docs:dev   # 빈 골격 미리보기
 
 ## 문제가 생기면
 
-- **스킬이 안 잡혀요** → `~/.claude/skills/workshop-scaffold/SKILL.md`가 있는지 확인하고 Claude Code를 재시작하세요.
+- **스킬이 안 잡혀요** → `claude plugin list`에 `workshop-scaffold`가 enabled로 보이는지 확인하고 Claude Code를 재시작하세요.
 - **빌드가 안 돼요** → 생성된 폴더에서 `npm ci` 후 `npm run docs:build`. Node 18+ 인지 확인.
 - **AWS 기능 정보가 오래돼 보여요** → 리전/GA 정보는 실행 시점 기준입니다. 배포 전 `artifacts/`의 라벨과 `confirmed_date`를 다시 보세요.

@@ -12,6 +12,10 @@
   ],
   "commands": [
     "./commands/new-workshop.md",
-    "./commands/workshop-check.md"
+    "./commands/workshop-check.md",
+    "./commands/workshop-walkthrough.md"
+  ],
+  "agents": [
+    "./agents/participant-walker.md"
   ]
 }
