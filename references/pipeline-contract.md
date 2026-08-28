@@ -14,20 +14,27 @@ This document is the contract that the harness running the skill (Claude Code + 
 | INV-5 **completeness count** | Verify requested count == produced count at every stage. A mismatch is a gate failure. (6 personas requested vs 5 produced, features in flows vs the features pages, datasets matching in three places) | Synthesis discovered after the fact that "6 were requested but only 5 arrived" |
 | INV-6 **preserve confidence labels** | The verified/documented/assumed/needs-check labels propagate into the generation stage and are never erased. Never promote an assumption to verified. **Attach the label as a column/field in that stage's structured output (scene tables, etc.), not in prose or a friction log.** If a table has no label, it is a gate failure. | Research discipline. In the cold run, the "assumed" label from stage 2 carried into the stage 3 scene table and hardened as if confirmed (GAP-02) |
 | INV-7 **booth & multi-entry check** | When `format==booth`, GATE-3b difficulty is computed not on a fixed order but also against **arbitrary entry points** (so a mid-session joiner does not get hit by a bomb of new concepts). Add a **reset time < inter-scene wait** constraint to GATE-4a. GATE-4c forbids not only fake screenshots but also **hiding real latency with a pre-cache to stage it as if real-time** (label it explicitly). | GAP-07 · 08 · 09 — booth loop replay, mid-session join, and cold-start concealment leak through static checks |
+| INV-8 **visual-first — visuals are mandatory, not decorative** | Text is the last resort, not the default. Every scene and every non-trivial concept **must** carry at least one visual, chosen by this rule: (a) a setup/config screen or an example result screen → a `<Screenshot>` capture slot; (b) a flow, a sequence/order of steps, or a whole-picture/architecture view → a diagram — **drawio (AWS4 official icons)** for service architecture & trust boundaries, **mermaid** for flows/sequences/decisions, **excalidraw** for a rough concept/analogy/before-after; (c) the workshop's own scene→feature chain → the `<FlowMap>` component. A wall of text explaining a flow or a screen, with no visual, is a defect. Enforced at GATE-3e (planned) and GATE-4d (present) and by `workshop-check.sh`. | Minimal-text is the whole point of the quick-* format; without a hard rule, generation drifts back to prose and the workshop stops being skimmable |
 
 ## 1. Per-stage contract
 
 Each stage: **reads → steps → writes → GATE (pass condition) → failure handling**. In `staged` mode the SA signs off at a ★GATE; `oneshot` is automatic but **checks the same pass conditions** and halts on violation.
 
+**Deterministic enforcement (hooks/scripts — not prose):** before starting each stage 2–8, run `bash scripts/gate.sh <stage>` (hard form of INV-1a + the blueprint `[BLOCKER]` check; exit 2 = do not start). The generated workshop's `.claude/settings.json` wires a Stop hook (`workshop-check.sh --fix`: datasets, presenter notes, emoji, assets, visual-first) and a PreToolUse hook (`protect-brief.mjs`: INV-4, blocks editing `brief.yaml` after intake). Everything hooks cannot decide (label honesty, dataset realism, review quality) remains this document's contract.
+
 ### 1 Intake
 - reads: SA input · writes: `brief.yaml` (+ `artifacts/01-brief-snapshot.yaml`)
-- steps: collect required fields (§brief-schema) → for missing fields, ask (do not guess defaults).
-- GATE: all required brief-schema fields filled + `mode`, `audience`, `region`, `scenarios` present.
+- steps: collect required fields (§brief-schema) → for missing fields, ask (do not guess defaults). **Explicitly ask for the brand image files**: the customer logo and a favicon (a file path or drag-and-drop; store under `assets/customer/` and copy into `docs/public/images/`). If the SA has none, record `null` — the site uses the wordmark/theme-color placeholder and the capture manifest lists the logo as pending. Never fabricate or restyle a logo (branding.md).
+- GATE: all required brief-schema fields filled + `mode`, `audience`, `region`, `scenarios` present + **logo/favicon asked and answered** (a path or an explicit null — "never asked" fails the gate).
 - failure: missing field → cannot proceed, re-ask.
 
 ### 2 Research ★
-- reads: `brief.yaml` · writes: `artifacts/02-feature-facts.md`
-- steps: derive the actual features needed by brief.aws.services + the scenarios → verify **region availability and GA/preview** via web/docs → confidence label → "design implications".
+- reads: `brief.yaml` · writes: `artifacts/02-feature-facts.md` (+ `02a-company-context.md`, `02b-audience-context.md`)
+- steps: run research as **parallel cells** (INV-3 applies — one failed cell never sinks the rest):
+  - **company cell** → `02a-company-context.md`: the customer's industry, scale, public tech stack, and domain vocabulary — so scenarios/datasets read as "our story", not generic.
+  - **audience cell** → `02b-audience-context.md`: what the target roles (from `audience.roles`) actually do day-to-day, their tooling, and what they already know — calibrates scene difficulty and jargon (feeds GATE-3b).
+  - **one technology cell per service/feature group** in `brief.aws.services` → verify **region availability and GA/preview** via web/docs → confidence label → "design implications".
+  - a **merge step** combines the technology cells into `02-feature-facts.md` (counting cells in == rows out, INV-5) and cross-references 02a/02b.
 - **GATE-2a region consistency**: does each service actually work in brief.region. If a feature that does not work is needed by a scenario → cannot pass without presenting a resolution (alternate region / alternate service / scope reduction). **`confirmed_date` and `valid_until` (default: run date −14 days) are required for the verdict** — on entry to GATE-5 · 8, if `valid_until` has passed, it cannot pass without re-verification (region tables for new services change frequently, GAP-05).
 - **GATE-2b naming ambiguity**: when one name can refer to two features (e.g., KB), nail down a definitive interpretation + its basis.
 - GATE-2c: a confidence label on every feature. `needs-check` items are entered into the pre-blueprint to-do list.
@@ -40,6 +47,7 @@ Each stage: **reads → steps → writes → GATE (pass condition) → failure h
 - **GATE-3b difficulty continuity**: difficulty jump between adjacent scenes ≤ 1 step. ≤ 2 new concepts per scene (split if exceeded).
 - **GATE-3c format fitness**: when `format==hands-on`, every scene has ≥ 1 action the participant **does directly** (no watch-only). When `format==booth`, watching + one hands-on action is allowed. When `presenter-led`, a presenter demo is allowed.
 - GATE-3d: every scene's features exist in the features catalog + match flows (INV-5).
+- **GATE-3e visual plan (INV-8)**: the blueprint assigns, as a **structured column per scene**, at least one planned visual and its kind — `screenshot` (setup/example screens), `drawio` (architecture), `mermaid` (flow/sequence), `excalidraw` (concept), or `flowmap`. A scene row with an empty visual column is a `[BLOCKER]`. The diagram list and image-slot outline must cover every entry in this column (INV-5).
 - failure: mark gate-violating items in the blueprint as `[BLOCKER]`; in staged mode, the SA rejects.
 
 ### 4 Generation
@@ -48,6 +56,7 @@ Each stage: **reads → steps → writes → GATE (pass condition) → failure h
 - **GATE-4a dataset realism**: the data satisfies the constraints the scene logic requires (e.g., moving-average demo → guarantee time-series continuity, an inserted outlier exceeds the threshold). State it in the spec.
 - **GATE-4b three-way match**: dataset ↔ the mapping table in `reference/datasets.md` ↔ the feature page's "Related datasets" (INV-5).
 - **GATE-4c evidence slots**: a control claim such as "the policy blocked it" requires before/after capture slots in the manifest. Do not generate product screenshots (only mark them as capture targets).
+- **GATE-4d visuals present (INV-8)**: every scene page actually contains ≥ 1 visual (a `<Screenshot>` slot, a mermaid block, a diagram image, or `<FlowMap>`), matching the kind planned in GATE-3e. Applying the decision rule: setup/example screens → `<Screenshot>`; flow/order/whole picture → drawio/mermaid/excalidraw per `diagram-recipes.md`. A text-only scene page fails the gate. `workshop-check.sh` reports pages with zero visuals.
 - failure: leave a missing slot/data as unresolved in the manifest and re-check in QA.
 
 ### 5 Assembly

@@ -87,10 +87,48 @@ const REVIEW = {
   },
 }
 
-// ── Stage 2: Research ★ ─────────────────────────────────────────
+// ── Stage 2: Research ★ (parallel cells: company × audience × one per technology) ──
 phase('Research')
+const plan = await agent(
+  `Read ${ROOT}/brief.yaml. Return: the list of AWS services/feature groups to verify (aws.services, expanded by what the scenarios imply), the customer name/industry, and the audience roles.`,
+  {
+    phase: 'Research',
+    schema: {
+      type: 'object',
+      required: ['services', 'customer', 'roles'],
+      properties: {
+        services: { type: 'array', items: { type: 'string' } },
+        customer: { type: 'string' },
+        roles: { type: 'array', items: { type: 'string' } },
+      },
+    },
+  }
+)
+const services = (plan && plan.services) || []
+// Company + audience + one cell per technology, all in parallel (INV-3: cells are isolated).
+const cellResults = await parallel([
+  () =>
+    agent(
+      `Research the customer "${plan && plan.customer}" (public sources only): industry, scale, public tech stack, domain vocabulary. Label facts documented/assumed per ${REFS}/research-discipline.md — never present an assumption as real. WRITE ${ROOT}/artifacts/02a-company-context.md. Return {path, ok}.`,
+      { phase: 'Research', schema: WROTE, label: 'research:company' }
+    ),
+  () =>
+    agent(
+      `Research the audience roles ${JSON.stringify((plan && plan.roles) || [])}: day-to-day work, tooling, prior knowledge — to calibrate scene difficulty and jargon (GATE-3b input). WRITE ${ROOT}/artifacts/02b-audience-context.md. Return {path, ok}.`,
+      { phase: 'Research', schema: WROTE, label: 'research:audience' }
+    ),
+  ...services.map((svc) => () =>
+    agent(
+      `Verify the AWS technology "${svc}" per ${REFS}/research-discipline.md: GA/preview status and availability in the region named in ${ROOT}/brief.yaml (verify freshly — web/docs, do not recall). One confidence label (verified|documented|assumed|needs-check) + confirmed_date + valid_until + a design implication. WRITE your rows to ${ROOT}/artifacts/02-tech-${svc.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md. Return {path, ok}.`,
+      { phase: 'Research', schema: WROTE, label: `research:${svc}` }
+    )
+  ),
+])
+const cellsOk = cellResults.filter(Boolean).filter((c) => c.ok).length
+log(`Research cells done: ${cellsOk}/${services.length + 2}`)
+// Merge the technology rows into the single source of truth (cells in == rows out, INV-5).
 const facts = await agent(
-  `Read ${ROOT}/brief.yaml. Follow ${REFS}/research-discipline.md exactly. For every AWS feature the scenarios rely on, verify GA/preview status and whether it is available in the brief's region (verify freshly — web/docs, do not recall). Assign one confidence label per feature: verified | documented | assumed | needs-check, with confirmed_date and valid_until. Resolve any region mismatch with an alternative (region/service/scope). WRITE the full result to ${ROOT}/artifacts/02-feature-facts.md as a table + per-feature design implications (this file is the source of truth; INV-1). Return the structured summary.`,
+  `Merge the per-technology files ${ROOT}/artifacts/02-tech-*.md into ${ROOT}/artifacts/02-feature-facts.md (table + design implications), preserving every confidence label and cross-referencing 02a/02b. Verify row count == ${services.length} technology cells (INV-5). Resolve any region mismatch with an alternative (region/service/scope) or flag it. Return the structured summary.`,
   { phase: 'Research', schema: FEATURE_FACTS, effort: 'high' }
 )
 if (facts && facts.regionBlockers && facts.regionBlockers.length) {

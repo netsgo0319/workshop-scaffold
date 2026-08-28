@@ -130,8 +130,9 @@ cd ../my-workshop && npm install && npm run docs:dev   # 빈 골격 미리보기
 | `SKILL.md` | Claude가 따르는 오케스트레이터 |
 | `assets/scaffold/` | 복사해서 채우는 빈 VitePress 골격 |
 | `assets/workshop-pipeline.workflow.mjs` | 파이프라인의 멀티에이전트 워크플로우 |
-| `scripts/new-workshop.sh` | 골격을 새 폴더로 복사 + 값 치환 |
-| `scripts/workshop-check.sh` | QA 게이트(에셋/데이터셋/발표자노트/플로우 + 빌드) |
+| `scripts/new-workshop.sh` | 골격을 새 폴더로 복사 + 값 치환 (강제 스크립트·훅 동봉) |
+| `scripts/workshop-check.sh` | QA 점검(에셋/데이터셋/발표자노트/비주얼 + 빌드) — 생성된 워크샵에서는 Stop 훅으로도 자동 실행 |
+| `scripts/gate.sh` | 단계 진입 하드 게이트 — 선행 산출물 없으면 착수 차단 |
 | `scripts/image-manifest.mjs` | 캡처 대기 스크린샷 목록화 |
 | `references/format-spec.md` | 결과물 구조·테마 규격 |
 | `references/component-api.md` | 페이지에서 쓰는 VitePress 컴포넌트 |

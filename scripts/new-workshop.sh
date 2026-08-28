@@ -67,6 +67,15 @@ fi
 
 echo "── Scaffold copied → $DEST"
 
+# Bundle the enforcement scripts into the workshop so the .claude hooks work standalone:
+#   Stop hook → scripts/workshop-check.sh, stage gates → scripts/gate.sh, capture list → image-manifest.mjs
+mkdir -p "$DEST/scripts"
+for s in workshop-check.sh gate.sh image-manifest.mjs; do
+  [ -f "$SCRIPT_DIR/$s" ] && cp "$SCRIPT_DIR/$s" "$DEST/scripts/$s"
+done
+chmod +x "$DEST/scripts/"*.sh 2>/dev/null || true
+echo "── Enforcement scripts bundled → $DEST/scripts/ (used by .claude/settings.json hooks)"
+
 # Token substitution (sed) — only for values that were provided. Works on both macOS/BSD and GNU.
 sed_i() {
   local pat="$1"; shift

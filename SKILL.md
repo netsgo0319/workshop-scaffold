@@ -5,58 +5,45 @@ description: Generate a complete hands-on AWS workshop from a topic, scenarios, 
 
 # Workshop Scaffold
 
-## What this skill does (WHAT)
+Turn **topic + scenarios + target customer** into one complete quick-\* VitePress workshop. Fill the proven skeleton in `assets/scaffold/` — don't invent structure. Explain with visuals, not prose (INV-8). Verify AWS facts fresh, never from memory.
 
-Take a topic + scenarios + target customer (level, role, industry, logo) and produce **one complete quick-\* VitePress workshop**. The format is specified in `references/format-spec.md`; the empty skeleton lives in `assets/scaffold/`. Keep text minimal — explain with diagrams and image slots.
+Self-contained: skeleton, scripts, hooks, and references are all bundled — a user starting from nothing can build and deploy end to end.
 
-This skill is self-contained: a user with nothing but this skill can build and deploy a workshop end to end. The skeleton (`assets/scaffold/`), the scripts (`scripts/`), and the reference docs are all bundled here.
+## Pipeline — 8 stages
 
-## When to use it (WHY)
+`mode: staged` (default) stops at ★ for SA sign-off; `oneshot` runs through but checks the same conditions and halts on violation. **Before starting each stage 2–8, run `bash scripts/gate.sh <stage>`** — it hard-blocks if the previous stage's artifact is missing (INV-1a). Full per-stage contract: `references/pipeline-contract.md`.
 
-- The format is already proven in the `ai-passport` and `media-briefing` workshops → fill this skeleton instead of building from scratch every time.
-- AWS capabilities must be verified fresh (GA/region/preview), not recalled from memory → a research gate is built into the pipeline.
-- To prevent a workshop that only makes sense to its author → a level×role persona panel actually reads it and produces concrete improvements.
+1. **Intake** → `brief.yaml`. Collect: topic, AWS services, audience (level×role), scenarios, duration, format (hands-on/booth/presenter-led), languages, mode, customer (name, industry, tech level) — **and ask for the customer logo and favicon image files** (path or drag-and-drop; explicit `null` if none — never skip the question, never fabricate a logo).
+2. **Research ★** → `artifacts/02-feature-facts.md` + `02a-company-context.md` + `02b-audience-context.md`. **Fan out in parallel**: a company cell, an audience-roles cell, and one cell per technology (GA/region/preview verified per `references/research-discipline.md`, confidence-labeled). Merge tech cells; cells in == rows out.
+3. **Blueprint ★** → `artifacts/03-blueprint.md`. Scenario arc, scene decomposition, feature→scene mapping, dataset needs, **a planned visual per scene** (GATE-3e), open questions — all closed before stage 4.
+4. **Generate** → `docs/**`, `demo_datasets/**`, `artifacts/04-image-manifest.json`. Fill templates (`references/templates/`), datasets, diagrams (`references/diagram-recipes.md`), branding (`references/branding.md`). Every scene page gets ≥1 visual (GATE-4d).
+5. **Assemble** → build. Copy skeleton via `scripts/new-workshop.sh` (bundles the enforcement scripts + `.claude/` hooks into the workshop), wire config/nav/i18n, build clean.
+6. **Persona review** → `artifacts/06-persona-review.md`. Level×role panel per `references/persona-rubric.md`, parallel cells, apply blockers/majors, rebuild.
+7. **QA** → `artifacts/07-qa-report.md`. `bash scripts/workshop-check.sh --full`.
+8. **Handoff** → `artifacts/08-handoff.md`. Capture manifest (`node scripts/image-manifest.mjs`), presenter notes pointer, deploy steps, known limitations.
 
-## How (HOW) — the 8-stage pipeline
+## Enforcement: hooks over prose
 
-If `brief.yaml`'s `mode` is `staged` (default), stop at each ★ gate for SA sign-off; if `oneshot`, proceed without stopping but check the same pass conditions and preserve the research confidence labels.
+The generated workshop ships with deterministic enforcement — don't rely on remembering the rules:
 
-1. **Intake** — collect from the SA: topic, target AWS services, audience (level×role), scenario count/titles, duration, format (booth / hands-on / presenter-led), languages, customer (name, logo, industry, tech level), and `mode`. → `brief.yaml`
-2. **Research ★** — verify each feature via web + AWS docs per `references/research-discipline.md`. Record GA/region/preview and a confidence label (verified / documented / assumed / needs-check) in `artifacts/02-feature-facts.md`. Never disguise an assumption as verified.
-3. **Blueprint ★** — scenario arc, scene decomposition (difficulty), feature→scene mapping, dataset requirements, diagram list, open questions. → `artifacts/03-blueprint.md`
-4. **Generate** — fill feature pages, scenes, datasets (+ locales), diagrams, and the image manifest using `references/templates/` and `references/diagram-recipes.md`. Customer tailoring per `references/branding.md`.
-5. **Assemble** — copy the skeleton with `scripts/new-workshop.sh`, wire up VitePress config / nav / i18n, and build.
-6. **Persona review** — run the level×role panel from `references/persona-rubric.md` (only the cells matching the audience). Parallel reviews → severity-sorted → apply blocker/major fixes → rebuild.
-7. **QA gate** — `scripts/workshop-check.sh` (assets, datasets, presenter notes, flows) + a passing build.
-8. **Handoff** — image capture manifest (`scripts/image-manifest.mjs`), presenter notes, deploy instructions, remaining needs-check / known limitations.
+- `.claude/settings.json` (in the scaffold) wires a **Stop hook** → `workshop-check.sh --fix` (datasets, presenter notes, emoji, assets, visual-first) and a **PreToolUse hook** → `protect-brief.mjs` (blocks edits to `brief.yaml` after intake; INV-4 — amend via `artifacts/00-amendments.md`).
+- `scripts/gate.sh <stage>` hard-blocks stage entry without the prerequisite artifact (INV-1a) and generation while the blueprint has `[BLOCKER]`s.
+- What the hooks can't check (label honesty, dataset realism, persona quality) stays in `references/pipeline-contract.md` — read it before running.
 
-## Two ways to run the pipeline
+## Non-negotiable rules
 
-- **Interactively (default)** — you (Claude Code) drive the 8 stages directly, following this file and the harness contract. Best for `staged` mode where the SA reviews at each ★ gate.
-- **As a workflow** — `assets/workshop-pipeline.workflow.mjs` encodes the pipeline as a multi-agent Workflow (parallel research/generation/persona cells with structured outputs). Use it for `oneshot` or when you want maximum parallelism. It requires the user to opt into workflow orchestration. The workflow honors the same gates and invariants as the interactive path.
+- **Visual-first (INV-8).** Setup/example screen → `<Screenshot>` slot; flow/order/whole picture → drawio (AWS4) / mermaid / excalidraw; scene→feature chain → `<FlowMap>`. A text-only scene page is a defect.
+- **Never generate a product screenshot.** Slots are real capture targets. AI images only for labeled conceptual illustration.
+- **Official AWS icons only** for architecture/flow diagrams.
+- **Customer logos/names** only for a genuine engagement; no fabricated testimonials or restyled logos.
+- **Confidence labels** (verified / documented / assumed / needs-check) propagate and are never promoted.
+- **Presenter-only content** lives in `PRESENTER_NOTES.md`, outside `docs/`.
 
-## Getting started from nothing
+## Two ways to run
 
-```bash
-# 1. Create the workshop skeleton in a new folder and substitute basic values
-bash scripts/new-workshop.sh ../my-workshop --title "ACME × Bedrock" --name my-workshop --color "#0972d3"
-cd ../my-workshop && npm install && npm run docs:dev   # preview the empty skeleton
-
-# 2. Run the skill to fill it: invoke /workshop-scaffold (or "build a workshop about …")
-#    Intake writes brief.yaml, then stages 2–8 fill and verify the content.
-```
-
-## Harness contract (must follow)
-
-Every gate, procedure, artifact I/O, model budget, and failure-handling rule is spelled out in `references/pipeline-contract.md`. Read it before running and honor the common invariants: **artifacts are files** (the next stage reads the file), **choose the model by difficulty** (strongest model + high effort for the hardest reasoning; cheap models for parallel/mechanical stages) **with stall resilience** (retry / split / compress / resume), **isolate structured-output failures per cell**, **`brief.yaml` is a read-only SSOT**, **verify request-count == output-count**, **preserve confidence labels**. In `staged` mode the SA signs off at the ★ gates (research, blueprint); `oneshot` checks the same pass conditions and stops on violation.
-
-## Rules (non-negotiable)
-
-- **Never generate a product screenshot.** `<Screenshot>` slots are left as real capture targets in the manifest. Stable Diffusion / Bedrock images are for conceptual illustration, backgrounds, and persona avatars only — and always labeled.
-- **Architecture and flow diagrams use official AWS icons** (drawio AWS4 / the `aws-diagram-design` skill). No improvised icons.
-- **Customer logos/names** are only for a genuine SA-led customer workshop's co-branding. Source logos from the customer / official brand assets. **No fabricated testimonials or fake quotes.**
-- **Presenter-only wording** (recording cues, demo sleight-of-hand) lives only in `PRESENTER_NOTES.md`, outside `docs/` — never leaking into the deployed pages.
+- **Interactive (default)** — drive the 8 stages yourself; best for `staged`.
+- **Workflow** — `assets/workshop-pipeline.workflow.mjs` runs the pipeline as a multi-agent Workflow (parallel research/generation/persona cells). Requires the user's explicit opt-in to workflow orchestration; honors the same gates.
 
 ## References
 
-Format spec `references/format-spec.md` · component API `references/component-api.md` · templates `references/templates/` · personas `references/persona-rubric.md` · research discipline `references/research-discipline.md` · diagrams `references/diagram-recipes.md` · branding `references/branding.md` · workflow `assets/workshop-pipeline.workflow.mjs` · example run `examples/hanbitpay/`.
+`references/`: format-spec · component-api · templates/ · persona-rubric · research-discipline · diagram-recipes · branding · pipeline-contract. Example input `assets/brief.example.yaml` · example run `examples/hanbitpay/`.

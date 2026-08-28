@@ -6,10 +6,12 @@
 #     --fix  : if datasets are newer than their ZIP, regenerate the download ZIP (only if the script exists)
 #     --full : also verify the VitePress build (+ always print the report)
 #
-#   Checks only the 4 mechanically verifiable axes. The scaffold may have few files,
+#   Checks only the mechanically verifiable axes. The scaffold may have few files,
 #   so a missing file never causes a hard exit (downgraded to a warning):
 #     1) datasets <-> download ZIP freshness   2) presenter notes excluded from deploy
 #     3) zero participant-facing emoji          4) referenced assets (icons/logo) exist
+#     5) visual-first (INV-8/GATE-4d): every scene page has >=1 visual
+#        (<Screenshot>/<Video>/<FlowMap>/mermaid/image) — text-only pages are flagged
 #   "Participant-perspective demo flow" needs judgment -> review it in the /workshop-check skill.
 # ─────────────────────────────────────────────────────────────
 set -uo pipefail
@@ -93,7 +95,18 @@ for L in logo.png; do
   [ -f "docs/public/images/home/$L" ] || warn "Logo asset missing (recommended): home/$L"
 done
 
-# 5) --full: build
+# 5) Visual-first (INV-8 / GATE-4d): every scene page carries >=1 visual
+noviz=0
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  if ! grep -qE '<Screenshot|<Video|<FlowMap|```mermaid|!\[|<img ' "$f" 2>/dev/null; then
+    warn "Text-only scene page (needs a Screenshot slot or diagram): $f"
+    noviz=$((noviz+1))
+  fi
+done < <(find docs -path '*scenario-*' -name 'scene*.md' 2>/dev/null)
+[ "$noviz" = "0" ] && ok "Visual-first: every scene page has a visual"
+
+# 6) --full: build
 if [ "$FULL" = "1" ]; then
   if [ -f package.json ]; then
     if npm run docs:build >/tmp/ws_build.log 2>&1; then ok "VitePress build succeeded"; else warn "Build failed (see /tmp/ws_build.log)"; fi

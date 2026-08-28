@@ -2,6 +2,14 @@
 
 Diagrams carry the explanation so the prose can stay short. Three kinds, each with a default tool. Architecture and flow diagrams that show AWS services **must** use official AWS icons — never improvised shapes (non-negotiable rule in SKILL.md).
 
+**Visuals are mandatory, not optional (INV-8).** The default question is not "would a visual help here?" but "which visual does this need?" — and the answer follows one rule:
+
+- Someone needs to see a **setup/config screen or an example result screen** → a `<Screenshot>` capture slot (never AI-generated).
+- Someone needs to see a **flow, an order of steps, or the whole picture** → a diagram: **drawio (AWS4)** for architecture, **mermaid** for flows/sequences/decisions, **excalidraw** for a rough concept.
+- Someone needs to see the **workshop's own scene→feature chain** → the `<FlowMap>` component.
+
+Every scene page must contain at least one of these (GATE-4d); a wall of text explaining a flow or a screen is a defect, not a style choice.
+
 Every diagram the blueprint (stage 3) lists must be produced in stage 4 and counted (INV-5: requested diagrams == produced diagrams).
 
 ## 1. Mermaid — inline flows, sequences, decisions

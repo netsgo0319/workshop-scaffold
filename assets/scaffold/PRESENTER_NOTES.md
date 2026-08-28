@@ -1,3 +1,4 @@
-# 발표자 전용 노트 (비배포 — `docs/` 밖에 둘 것)
+# PRESENTER NOTES (not deployed)
 
-발표자만 보는 진행 대본·시연 주의점·타이밍을 여기에 적는다. 이 파일은 `docs/` 밖에 있어 사이트로 배포되지 않는다.
+Presenter-only content lives here, outside docs/ — demo cues, timing, fallback plans.
+Nothing in this file may be copied into docs/ (enforced by workshop-check.sh).

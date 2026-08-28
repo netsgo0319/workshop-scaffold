@@ -49,6 +49,7 @@ Three locales: `ko` (default), `en`, `ja`. Mirrored under `docs/en/` and `docs/j
 
 ## Invariants (enforced by QA)
 
+- **Visual-first (INV-8)**: every scene page contains ≥ 1 visual — a `<Screenshot>` slot for setup/example screens, a drawio/mermaid/excalidraw diagram for flows and whole-picture views, or `<FlowMap>` for the scene→feature chain. Text-only scene pages fail GATE-4d and are flagged by `workshop-check.sh`.
 - Presenter-only wording lives only in `PRESENTER_NOTES.md`, never inside `docs/`.
 - Datasets match in three places: the download ZIP / the mapping table in `reference/datasets.md` / the "Related datasets" section of the feature page.
 - Spell out abbreviations on first appearance. No unsupported figures or definitive claims about competitors.

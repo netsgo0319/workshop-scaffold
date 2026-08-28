@@ -13,7 +13,8 @@ workshop:
 engagement:                 # ← the unchanging "engagement facts". Stamped as-is onto the cover, co-branding, and schedule.
   customer:
     name: "한빛페이"
-    logo: assets/customer/hanbitpay.svg   # if no original, null → wordmark text only
+    logo: assets/customer/hanbitpay.svg   # ASK the SA for the image file at intake; if none, null → wordmark text only
+    favicon: assets/customer/hanbitpay-favicon.png  # ASK at intake; if null, derived from logo or theme-color placeholder
     industry: "간편결제 PG"
     size: "임직원 210명 · 일 180만 트랜잭션"
   date: 2026-09-15          # engagement date

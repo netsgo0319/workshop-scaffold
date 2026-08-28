@@ -2,6 +2,18 @@
 
 Stage 2 ("Research ★") turns the brief's intended AWS features into **verified facts** before any page is written. The output is `artifacts/02-feature-facts.md`. This is a ★ gate: in `staged` mode the SA signs off; in `oneshot` mode the same pass conditions are checked and the run stops on violation.
 
+## Run it as parallel cells
+
+Research fans out in parallel (one agent per cell; INV-3 failure isolation):
+
+| Cell | One per | Writes | Why |
+|---|---|---|---|
+| Company | engagement | `artifacts/02a-company-context.md` | Industry, scale, public tech stack, domain vocabulary — scenarios and datasets must read as the customer's own story. |
+| Audience | engagement | `artifacts/02b-audience-context.md` | What each target role does day-to-day, their tools, their prior knowledge — calibrates difficulty and jargon (GATE-3b input). |
+| Technology | service/feature group in `brief.aws.services` | rows merged into `02-feature-facts.md` | The GA/region/label verification below. |
+
+A merge step assembles the technology rows into `02-feature-facts.md` (cells in == rows out, INV-5). The company/audience cells follow the same labeling rules: public facts you found are `documented`, your inferences are `assumed` — never present an assumed customer fact as real.
+
 The reason this stage exists: AWS capabilities — GA vs preview, regional availability, exact feature names — change often and cannot be answered from memory. A workshop that hands participants a feature that isn't in their region, or calls a preview "GA", fails in the room. See GATE-2a / GATE-2b / GATE-2c in `pipeline-contract.md`.
 
 ## What to produce per feature

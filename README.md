@@ -128,8 +128,9 @@ The generated site's base theme follows [`references/format-spec.md`](references
 | `SKILL.md` | The orchestrator Claude follows |
 | `assets/scaffold/` | The empty VitePress skeleton that gets copied and filled |
 | `assets/workshop-pipeline.workflow.mjs` | The pipeline as a multi-agent workflow |
-| `scripts/new-workshop.sh` | Copy the skeleton into a new folder + substitute values |
-| `scripts/workshop-check.sh` | QA gate (assets / datasets / presenter notes / flows + build) |
+| `scripts/new-workshop.sh` | Copy the skeleton into a new folder + substitute values (bundles the enforcement scripts & hooks) |
+| `scripts/workshop-check.sh` | QA checks (assets / datasets / presenter notes / visuals + build) — also runs as a Stop hook in the generated workshop |
+| `scripts/gate.sh` | Hard stage-entry gate — blocks a stage whose prerequisite artifact is missing |
 | `scripts/image-manifest.mjs` | List capture-pending screenshots |
 | `references/format-spec.md` | Output structure & theme spec |
 | `references/component-api.md` | The VitePress components you write with |
