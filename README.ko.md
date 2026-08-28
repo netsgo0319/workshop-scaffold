@@ -12,9 +12,11 @@
 
 ## 데모 영상
 
-[![데모 — 파이프라인이 다이어그램과 페이지를 그려내는 장면](media/demo-poster.png)](media/demo.mp4)
+[![데모 — 파이프라인이 다이어그램과 페이지를 그려내는 장면](https://img.youtube.com/vi/3aEmSaqTq44/maxresdefault.jpg)](https://youtu.be/3aEmSaqTq44)
 
-*클릭해서 재생(mp4) — 스킬이 워크샵을 실제로 생성하는 장면: mermaid 플로우, AWS 아키텍처 다이어그램, 시나리오 페이지.*
+*클릭해서 시청 — 스킬이 워크샵을 실제로 생성하는 장면: mermaid 플로우, AWS 아키텍처 다이어그램, 시나리오 페이지.*
+
+이 스킬로 만든 **샘플 워크샵(라이브)**: **https://sample-workshop.yejinkm.people.aws.dev/**
 
 ---
 

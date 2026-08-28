@@ -10,9 +10,11 @@ Instead of building a workshop from scratch every time, you fill a validated ske
 
 ## Demo
 
-[![Demo — the pipeline drawing diagrams and pages](media/demo-poster.png)](media/demo.mp4)
+[![Demo — the pipeline drawing diagrams and pages](https://img.youtube.com/vi/3aEmSaqTq44/maxresdefault.jpg)](https://youtu.be/3aEmSaqTq44)
 
-*Click to play (mp4) — the skill generating a workshop live: mermaid flows, AWS architecture diagrams, scenario pages.*
+*Click to watch — the skill generating a workshop live: mermaid flows, AWS architecture diagrams, scenario pages.*
+
+**Live sample workshop** built with this skill: **https://sample-workshop.yejinkm.people.aws.dev/**
 
 ---
 
