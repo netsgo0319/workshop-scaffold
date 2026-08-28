@@ -60,7 +60,7 @@ claude plugin marketplace add ./workshop-scaffold
 claude plugin install workshop-scaffold
 ```
 
-설치 후 Claude Code를 다시 시작하세요. (`~/.claude/skills/`로 바로 클론하는 방식은 이제 동작하지 않습니다 — 스킬이 레포 루트가 아니라 `skills/` 아래에 있습니다.)
+설치 후 실행 중인 세션에서는 `/reload-plugins`로 바로 로드됩니다(재시작도 가능). (`~/.claude/skills/`로 바로 클론하는 방식은 이제 동작하지 않습니다 — 스킬이 레포 루트가 아니라 `skills/` 아래에 있습니다.)
 
 ---
 
@@ -104,7 +104,7 @@ claude plugin install workshop-scaffold
 ## 빠른 시작 (아무것도 없는 상태에서)
 
 ```bash
-# 1. 설치(1회) 후, 플러그인이 로드되도록 Claude Code를 재시작
+# 1. 설치(1회) 후, Claude Code 안에서 /reload-plugins 실행(또는 재시작)
 claude plugin marketplace add netsgo0319/workshop-scaffold
 claude plugin install workshop-scaffold
 
@@ -185,6 +185,6 @@ mkdir my-workshop && cd my-workshop && claude
 
 ## 문제가 생기면
 
-- **스킬이 안 잡혀요** → `claude plugin list`에 `workshop-scaffold`가 enabled로 보이는지 확인하고 Claude Code를 재시작하세요.
+- **스킬이 안 잡혀요** → `claude plugin list`에 `workshop-scaffold`가 enabled로 보이는지 확인하고 `/reload-plugins`(또는 재시작)하세요.
 - **빌드가 안 돼요** → 생성된 폴더에서 `npm ci` 후 `npm run docs:build`. Node 18+ 인지 확인.
 - **AWS 기능 정보가 오래돼 보여요** → 리전/GA 정보는 실행 시점 기준입니다. 배포 전 `artifacts/`의 라벨과 `confirmed_date`를 다시 보세요.

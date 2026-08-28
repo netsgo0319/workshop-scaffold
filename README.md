@@ -58,7 +58,7 @@ claude plugin marketplace add ./workshop-scaffold
 claude plugin install workshop-scaffold
 ```
 
-Restart Claude Code after installing. (Cloning straight into `~/.claude/skills/` no longer works — the skills live under `skills/`, not the repo root.)
+After installing, run `/reload-plugins` in a running session (or restart Claude Code). (Cloning straight into `~/.claude/skills/` no longer works — the skills live under `skills/`, not the repo root.)
 
 ---
 
@@ -102,7 +102,7 @@ Restart Claude Code after installing. (Cloning straight into `~/.claude/skills/`
 ## Quick start (from nothing)
 
 ```bash
-# 1. Install once, then RESTART Claude Code so the plugin loads
+# 1. Install once, then run /reload-plugins in Claude Code (or restart it)
 claude plugin marketplace add netsgo0319/workshop-scaffold
 claude plugin install workshop-scaffold
 
@@ -183,6 +183,6 @@ The generated site's base theme follows [`references/format-spec.md`](references
 
 ## Troubleshooting
 
-- **The skill isn't picked up** → `claude plugin list` should show `workshop-scaffold` enabled; restart Claude Code after installing.
+- **The skill isn't picked up** → `claude plugin list` should show `workshop-scaffold` enabled; run `/reload-plugins` (or restart Claude Code).
 - **The build fails** → in the generated folder, `npm ci` then `npm run docs:build`. Check you're on Node 18+.
 - **AWS info looks stale** → region/GA facts are point-in-time. Before deploying, re-check the labels and `confirmed_date` in `artifacts/`.
