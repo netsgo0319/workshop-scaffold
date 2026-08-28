@@ -1,80 +1,80 @@
-# 파이프라인 계약 — 하네스 관점의 게이트·절차 전부 명시
+# Pipeline contract — every gate and procedure, spelled out from the harness's point of view
 
-이 문서는 스킬을 실행하는 하네스(Claude Code + 서브에이전트/워크플로우)가 **반드시 지켜야 하는** 계약이다. 실제 라이브 실행 2회에서 관측한 실패를 게이트로 승격시킨 것이다.
+This document is the contract that the harness running the skill (Claude Code + subagents/workflows) **must** honor. It promotes failures observed across two real live runs into gates.
 
-## 0. 공통 불변식 (모든 단계 관통)
+## 0. Shared invariants (cut across every stage)
 
-| ID | 불변식 | 왜 (관측된 실패) |
+| ID | Invariant | Why (observed failure) |
 |---|---|---|
-| INV-1 **산출물=파일** | 각 단계는 결과를 `artifacts/NN-name.ext`에 **파일로 쓴다.** 다음 단계는 그 파일을 읽는다. 이전 에이전트의 반환 텍스트/요약에 의존하지 않는다. **"텍스트로 반환"·"디버그/테스트"·"부분 실행" 등 어떤 실행 지시로도 유예 불가** — 부분 실행이 필요하면 `stageNN-partial.md`로 파일화한다. | 연구 에이전트가 파일에 쓰고 요약만 반환 → 청사진에 전문이 안 넘어감. 콜드런에선 "텍스트로 반환" 지시 한 줄이 2·3단계 파일화를 무력화(GAP-01) |
-| INV-1a **선행 산출물 존재 확인** | 각 단계 착수 전, 직전 단계 산출물 파일이 지정 경로에 **실존하는지 하드 블로킹 체크**. 부재 = 자동 실패, 착수 금지. | GAP-01 — 파일이 없어도 다음 단계가 그냥 진행됨 |
-| INV-2 **스톨 내성·분할·난이도별 모델** | 모델은 **난이도로** 고른다 — 가장 어려운 추론 단계에 가장 강한 모델(opus)+높은 effort를 쓰고, 병렬·기계적 단계는 저렴한 모델로 처리량을 낸다("무거우니 약한 모델"이 아니다). 스톨(무진전 타임아웃)에 대비한다: ① 재시도(백오프) ② 반복 스톨 시 작업을 더 작은 단위로 **분할**(예: 청사진을 시나리오별로 나눠 생성) ③ 시드 프롬프트를 **필요한 사실만으로 압축**(전부 싣지 않음) ④ 필요 시 `resumeFromRunId`로 재개. 단일 초대형 생성 1건보다 분할·병렬이 스톨 blast radius를 줄인다. | 청사진 스톨은 opus 탓이 아니라 대형 프롬프트+단일 초대형 생성+워치독의 복합. opus+high+큰 프롬프트는 이 세션의 연구·설계 산출물에서 정상 작동함(= 티어 금지는 오귀인) |
-| INV-3 **구조화출력 실패 격리** | schema 강제 에이전트는 병렬 셀 단위. 셀 하나가 재시도 상한 초과로 실패해도 나머지는 살린다. 실패 셀은 `resumeFromRunId`로 그 셀만 재실행하거나 text 폴백. | 페르소나 1명 StructuredOutput 재시도 상한 초과 |
-| INV-4 **SSOT 불변** | `brief.yaml`은 read-only. 값을 바꾸려면 명시적 amend를 `artifacts/00-amendments.md`에 기록하고 영향받는 단계만 재생성. | 고정값 관리 요구 |
-| INV-5 **완결성 카운트** | 요청 수 == 산출 수를 매 단계 검증. 불일치는 게이트 실패. (페르소나 요청 6 vs 산출 5, features in flows vs features 페이지, 데이터셋 3곳 일치) | 종합이 "6 요청했는데 5만 왔다"를 사후 발견 |
-| INV-6 **신뢰도 라벨 보존** | 검증/문서/추정/확인필요 라벨은 생성 단계로 전파되고 절대 지워지지 않는다. 추정을 검증으로 승격 금지. **라벨은 산문·마찰로그가 아니라 그 단계의 구조화 산출물(씬 표 등)에 컬럼/필드로 병기**한다. 표에 라벨 없으면 게이트 실패. | 연구 규율. 콜드런에서 2단계 "추정" 라벨이 3단계 씬 표로 넘어가며 확정처럼 굳음(GAP-02) |
-| INV-7 **부스·멀티진입 검사** | `format==booth`면 GATE-3b 난이도는 고정 순서가 아니라 **임의 진입점** 기준으로도 계산(중간합류자가 신규개념 폭탄 안 맞게). GATE-4a에 **리셋 소요<씬 간 대기** 제약 추가. GATE-4c는 가짜 스크린샷뿐 아니라 **사전캐시로 실지연을 숨겨 실시간처럼 연출**하는 것도 금지(라벨 명시). | GAP-07·08·09 — booth 반복재생·중간합류·콜드스타트 은폐가 정적 검사에서 샘 |
+| INV-1 **output = file** | Each stage **writes its result as a file** to `artifacts/NN-name.ext`. The next stage reads that file. It does not depend on the returning text/summary of the previous agent. **No execution instruction can defer this — not "return as text", not "debug/test", not "partial run"** — if a partial run is needed, write it to a file as `stageNN-partial.md`. | A research agent wrote to a file but returned only a summary → the full text never reached the blueprint. In the cold run, a single "return as text" instruction defeated the file-writing of stages 2 & 3 (GAP-01) |
+| INV-1a **verify prerequisite output exists** | Before starting each stage, **hard-blocking check** that the immediately preceding stage's output file actually exists at the designated path. Absent = automatic failure, do not start. | GAP-01 — the next stage proceeds even when the file is missing |
+| INV-2 **stall tolerance, splitting, model by difficulty** | Choose the model **by difficulty** — use the strongest model (opus) + high effort for the hardest reasoning stage, and cheap models to get throughput on parallel/mechanical stages (it is not "heavy, so use a weak model"). Prepare for stalls (a no-progress timeout): ① retry (backoff) ② on repeated stalls, **split** the work into smaller units (e.g., generate the blueprint scenario by scenario) ③ **compress the seed prompt down to only the facts needed** (do not load everything) ④ resume with `resumeFromRunId` if needed. Splitting/parallelism reduces the blast radius of a stall more than one single mega-generation. | The blueprint stall was not opus's fault but a compound of a large prompt + one single mega-generation + the watchdog. opus + high + a large prompt worked fine on this session's research and design outputs (= banning the tier is a misattribution) |
+| INV-3 **isolate structured-output failures** | A schema-enforcing agent is a parallel cell unit. Even if one cell fails by exceeding its retry limit, keep the rest alive. Re-run just that cell with `resumeFromRunId`, or fall back to text. | One persona exceeded the StructuredOutput retry limit |
+| INV-4 **SSOT immutable** | `brief.yaml` is read-only. To change a value, record an explicit amend in `artifacts/00-amendments.md` and regenerate only the affected stages. | Requirement to manage fixed values |
+| INV-5 **completeness count** | Verify requested count == produced count at every stage. A mismatch is a gate failure. (6 personas requested vs 5 produced, features in flows vs the features pages, datasets matching in three places) | Synthesis discovered after the fact that "6 were requested but only 5 arrived" |
+| INV-6 **preserve confidence labels** | The verified/documented/assumed/needs-check labels propagate into the generation stage and are never erased. Never promote an assumption to verified. **Attach the label as a column/field in that stage's structured output (scene tables, etc.), not in prose or a friction log.** If a table has no label, it is a gate failure. | Research discipline. In the cold run, the "assumed" label from stage 2 carried into the stage 3 scene table and hardened as if confirmed (GAP-02) |
+| INV-7 **booth & multi-entry check** | When `format==booth`, GATE-3b difficulty is computed not on a fixed order but also against **arbitrary entry points** (so a mid-session joiner does not get hit by a bomb of new concepts). Add a **reset time < inter-scene wait** constraint to GATE-4a. GATE-4c forbids not only fake screenshots but also **hiding real latency with a pre-cache to stage it as if real-time** (label it explicitly). | GAP-07 · 08 · 09 — booth loop replay, mid-session join, and cold-start concealment leak through static checks |
 
-## 1. 단계별 계약
+## 1. Per-stage contract
 
-각 단계: **reads → steps → writes → GATE(통과조건) → 실패처리**. `staged` 모드는 ★GATE에서 SA 서명, `oneshot`은 자동이나 **동일 통과조건을 검사**하고 위반 시 중단.
+Each stage: **reads → steps → writes → GATE (pass condition) → failure handling**. In `staged` mode the SA signs off at a ★GATE; `oneshot` is automatic but **checks the same pass conditions** and halts on violation.
 
-### 1 인테이크
-- reads: SA 입력 · writes: `brief.yaml`(+`artifacts/01-brief-snapshot.yaml`)
-- steps: 필수 필드 수집(§brief-schema) → 누락 필드는 물어본다(기본값 추정 금지).
-- GATE: brief 스키마 필수 필드 전부 채워짐 + `mode`·`audience`·`region`·`scenarios` 존재.
-- 실패: 필드 누락 → 진행 불가, 재질의.
+### 1 Intake
+- reads: SA input · writes: `brief.yaml` (+ `artifacts/01-brief-snapshot.yaml`)
+- steps: collect required fields (§brief-schema) → for missing fields, ask (do not guess defaults).
+- GATE: all required brief-schema fields filled + `mode`, `audience`, `region`, `scenarios` present.
+- failure: missing field → cannot proceed, re-ask.
 
-### 2 연구 ★
+### 2 Research ★
 - reads: `brief.yaml` · writes: `artifacts/02-feature-facts.md`
-- steps: brief.aws.services + 시나리오에 필요한 실제 기능 도출 → 웹/문서로 **리전 가용성·GA/preview** 검증 → 신뢰도 라벨 → "설계 함의".
-- **GATE-2a 리전 정합**: brief.region에서 각 서비스가 실제로 되는가. 안 되는 기능이 시나리오에 필요하면 → 해소안(대체 리전/대체 서비스/축소) 제시 없이는 통과 불가. **판정에 `confirmed_date`와 `valid_until`(기본 실행일 -14일) 필수** — GATE-5·8 진입 시 `valid_until` 경과면 재확인 없이 통과 불가(신생 서비스는 리전표가 수시로 바뀜, GAP-05).
-- **GATE-2b 명칭 모호성**: 한 이름이 두 기능을 가리킬 수 있으면(예: KB) 확정 해석 + 근거를 못박는다.
-- GATE-2c: 모든 기능에 신뢰도 라벨. `확인필요`는 청사진 전 처리 목록에 등재.
-- 실패: 웹 접근 불가 시 전부 `확인필요`로 라벨하고 그 사실을 명시(추정으로 위장 금지).
+- steps: derive the actual features needed by brief.aws.services + the scenarios → verify **region availability and GA/preview** via web/docs → confidence label → "design implications".
+- **GATE-2a region consistency**: does each service actually work in brief.region. If a feature that does not work is needed by a scenario → cannot pass without presenting a resolution (alternate region / alternate service / scope reduction). **`confirmed_date` and `valid_until` (default: run date −14 days) are required for the verdict** — on entry to GATE-5 · 8, if `valid_until` has passed, it cannot pass without re-verification (region tables for new services change frequently, GAP-05).
+- **GATE-2b naming ambiguity**: when one name can refer to two features (e.g., KB), nail down a definitive interpretation + its basis.
+- GATE-2c: a confidence label on every feature. `needs-check` items are entered into the pre-blueprint to-do list.
+- failure: if web access is unavailable, label everything `needs-check` and state that fact explicitly (do not disguise it as assumed).
 
-### 3 청사진 ★
+### 3 Blueprint ★
 - reads: `brief.yaml`, `02-feature-facts.md` · writes: `artifacts/03-blueprint.md`
-- steps: 시나리오→씬 분해(난이도) · 기능→씬 매핑(flows) · features 카탈로그 · 데이터셋 요구 · 다이어그램 목록 · 이미지 슬롯 개략 · **열린 질문**.
-- **GATE-3a 열린질문 폐쇄**: blueprint의 열린 질문(예: 벡터스토어 미정, 이상탐지 로직 미정)은 **생성(4) 진입 전 전부 결정**되어야 한다. 씬 대본이 미결정을 이미 확정된 듯 전제하면 실패. → 결정을 brief amend 또는 blueprint에 기록.
-- **GATE-3b 난이도 연속**: 인접 씬 난이도 점프 ≤1단계. 한 씬에 신규 개념 ≤2개(초과 시 분리).
-- **GATE-3c 형식 적합**: `format==hands-on`이면 모든 씬에 참가자가 **직접 하는** 행동 ≥1(구경만 금지). `format==booth`면 관람+1회 손동작 허용. `presenter-led`면 발표자 시연 허용.
-- GATE-3d: 모든 씬 기능이 features 카탈로그에 존재 + flows와 일치(INV-5).
-- 실패: 게이트 위반 항목을 blueprint에 `[BLOCKER]`로 표시, staged면 SA 반려.
+- steps: scenario→scene decomposition (difficulty) · feature→scene mapping (flows) · features catalog · dataset requirements · diagram list · rough image slots · **open questions**.
+- **GATE-3a close open questions**: the blueprint's open questions (e.g., vector store undecided, anomaly-detection logic undecided) must **all be decided before entering generation (4)**. If a scene script already presumes an undecided item as settled, it fails. → record the decision as a brief amend or in the blueprint.
+- **GATE-3b difficulty continuity**: difficulty jump between adjacent scenes ≤ 1 step. ≤ 2 new concepts per scene (split if exceeded).
+- **GATE-3c format fitness**: when `format==hands-on`, every scene has ≥ 1 action the participant **does directly** (no watch-only). When `format==booth`, watching + one hands-on action is allowed. When `presenter-led`, a presenter demo is allowed.
+- GATE-3d: every scene's features exist in the features catalog + match flows (INV-5).
+- failure: mark gate-violating items in the blueprint as `[BLOCKER]`; in staged mode, the SA rejects.
 
-### 4 생성
+### 4 Generation
 - reads: `brief.yaml`, `02`, `03` · writes: `docs/**`, `demo_datasets/**`, `artifacts/04-image-manifest.json`
-- steps: 템플릿(feature/scene)로 페이지 채움 · 데이터셋 생성(+로케일) · 다이어그램(공식 AWS 아이콘) · Screenshot 슬롯 → 매니페스트.
-- **GATE-4a 데이터셋 현실성**: 씬 로직이 요구하는 제약을 데이터가 만족(예: 이동평균 시연 → 시계열 연속성 보장, 삽입한 이상치가 임계값 초과). 스펙에 명시.
-- **GATE-4b 3곳 일치**: 데이터셋 ↔ `reference/datasets.md` 매핑표 ↔ 기능페이지 "관련 데이터셋"(INV-5).
-- **GATE-4c 증거 슬롯**: "정책이 막았다" 같은 통제 주장은 before/after 캡처 슬롯을 매니페스트에 요구. 제품 스크린샷은 생성 금지(캡처 대상으로만).
-- 실패: 슬롯/데이터 누락을 매니페스트에 미결로 남기고 QA에서 재검.
+- steps: fill pages with the templates (feature/scene) · generate datasets (+ locales) · diagrams (official AWS icons) · Screenshot slots → manifest.
+- **GATE-4a dataset realism**: the data satisfies the constraints the scene logic requires (e.g., moving-average demo → guarantee time-series continuity, an inserted outlier exceeds the threshold). State it in the spec.
+- **GATE-4b three-way match**: dataset ↔ the mapping table in `reference/datasets.md` ↔ the feature page's "Related datasets" (INV-5).
+- **GATE-4c evidence slots**: a control claim such as "the policy blocked it" requires before/after capture slots in the manifest. Do not generate product screenshots (only mark them as capture targets).
+- failure: leave a missing slot/data as unresolved in the manifest and re-check in QA.
 
-### 5 조립
-- reads: `docs/**`, scaffold · writes: 빌드된 사이트, `artifacts/05-build-report.txt`
-- steps: `new-workshop.sh`로 골격 복사·치환 → config/nav/i18n 배선 → 빌드.
-- GATE-5: 빌드 통과 + 죽은 링크 0 + 로케일 누락 0.
-- 실패: 빌드 로그의 오류 전부 해소 후 재빌드.
+### 5 Assembly
+- reads: `docs/**`, scaffold · writes: the built site, `artifacts/05-build-report.txt`
+- steps: copy & substitute the skeleton with `new-workshop.sh` → wire config/nav/i18n → build.
+- GATE-5: build passes + 0 dead links + 0 missing locales.
+- failure: resolve every error in the build log, then rebuild.
 
-### 6 페르소나 평가
-- reads: `brief.yaml`(audience), 빌드된 사이트/`03` · writes: `artifacts/06-persona-review.md`
-- steps: audience 매트릭스 활성 셀 = 페르소나 목록 확정 → 병렬 리뷰(schema) → 완주판정·findings → 종합·심각도 정렬 → blocker·major 적용 → 재빌드.
-- **GATE-6a 패널 완결성**: 활성 셀 수 == 산출 리뷰 수(INV-5). 누락 셀은 재실행해 채운다.
-- **GATE-6b "다 좋다" 무효**: 각 페르소나 최소 2 findings + 구체 fix. 빈 리뷰는 무효.
-- **GATE-6c blocker 소거**: 적용 후 남은 blocker 0. 최대 2회전, 남으면 "알려진 한계"로 핸드오프에 명시.
-- 실패: 셀 실패는 INV-3대로 그 셀만 재실행.
+### 6 Persona evaluation
+- reads: `brief.yaml` (audience), the built site / `03` · writes: `artifacts/06-persona-review.md`
+- steps: active cells of the audience matrix = finalize the persona list → parallel review (schema) → completion verdict & findings → synthesize & sort by severity → apply blocker & major → rebuild.
+- **GATE-6a panel completeness**: number of active cells == number of produced reviews (INV-5). Re-run to fill any missing cell.
+- **GATE-6b "all good" is void**: each persona has ≥ 2 findings + a concrete fix. An empty review is void.
+- **GATE-6c clear blockers**: 0 blockers remaining after applying. Max 2 rounds; if any remain, state them as "known limitations" in the handoff.
+- failure: a failed cell is re-run alone per INV-3.
 
-### 7 QA 게이트
-- reads: 전체 · writes: `artifacts/07-qa-report.md`
-- steps: `workshop-check.sh`(에셋·데이터셋·발표자노트·플로우) + 빌드.
-- GATE-7: 4축 전부 통과 + 발표자 전용 문구가 `docs/`에 없음 + 미해결 이미지 슬롯 목록화.
-- 실패: 명백한 것은 수정, 판단 필요는 SA에 보고.
+### 7 QA gate
+- reads: everything · writes: `artifacts/07-qa-report.md`
+- steps: `workshop-check.sh` (assets, datasets, presenter notes, flows) + build.
+- GATE-7: all 4 axes pass + no presenter-only wording in `docs/` + unresolved image slots listed.
+- failure: fix the obvious ones; report the ones needing judgment to the SA.
 
-### 8 핸드오프
-- reads: 전체 · writes: `artifacts/08-handoff.md`
-- steps: 이미지 캡처 매니페스트 · 발표자 노트 포인터 · Amplify 배포 안내 · 남은 확인필요/알려진 한계.
-- GATE-8: 캡처 매니페스트 완결 + 배포 전 재확인 항목(리전표 등) 명시.
+### 8 Handoff
+- reads: everything · writes: `artifacts/08-handoff.md`
+- steps: image capture manifest · presenter notes pointer · Amplify deployment guide · remaining needs-check / known limitations.
+- GATE-8: capture manifest complete + pre-deploy re-verification items (region tables, etc.) stated.
 
 ## 2. MANIFEST
 
-`artifacts/MANIFEST.md`가 8단계 상태(✅/⬜/★대기)와 각 게이트 통과 여부를 인덱스한다. staged 모드는 ★대기에서 멈춘다.
+`artifacts/MANIFEST.md` indexes the status of the 8 stages (✅/⬜/★pending) and whether each gate passed. In staged mode it stops at a ★pending.

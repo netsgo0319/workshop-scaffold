@@ -1,59 +1,59 @@
-# quick-* 워크샵 형식 규격
+# quick-* workshop format spec
 
-`ai-passport`·`media-briefing`에서 추출한 골격. 생성물은 이 구조를 따라야 QA 게이트를 통과한다.
+The skeleton extracted from `ai-passport` and `media-briefing`. Generated output must follow this structure to pass the QA gates.
 
-## 디렉토리
+## Directory
 
 ```
 docs/
-  start/       overview.md, setup.md            # 도입·환경준비
-  features/    {id}.md …                         # 기능 1장 = 1파일 (템플릿: feature.md)
-  scenario-{x}/ index.md, scene1..N.md           # 실습 (템플릿: scene.md). x는 a,b,… N개
+  start/       overview.md, setup.md            # intro & environment prep
+  features/    {id}.md …                         # one feature = one file (template: feature.md)
+  scenario-{x}/ index.md, scene1..N.md           # hands-on labs (template: scene.md). x is a, b, … for N of them
   reference/   datasets.md, demo-guide.md, tips.md
-  public/images/   스크린샷·아이콘·로고 슬롯
+  public/images/   screenshot / icon / logo slots
   .vitepress/  config.mts + data/{features,flows}.ts + theme/components
-demo_datasets/  scenario_{x}/…  (+ _en/_ja 로케일 사본)
-PRESENTER_NOTES.md   # docs 밖 = 비배포
+demo_datasets/  scenario_{x}/…  (+ _en/_ja locale copies)
+PRESENTER_NOTES.md   # outside docs = not deployed
 scripts/workshop-check.sh
 amplify.yml
 ```
 
-## 데이터 파일 (SSOT)
+## Data files (SSOT)
 
-- `.vitepress/data/features.ts` — 기능 메타(id·이름·아이콘·시나리오·씬). 기능 페이지·`<FeatureMeta>`·`<FeatureLinks>`의 단일 출처.
-- `.vitepress/data/flows.ts` — 시나리오별 기능 연결(FlowMap). 씬↔기능 매핑.
-- 기능/씬을 추가하면 이 두 파일과 nav(config.mts)를 함께 갱신 — 안 하면 QA에서 걸림.
+- `.vitepress/data/features.ts` — feature metadata (id, name, icon, scenario, scenes). The single source of truth for feature pages, `<FeatureMeta>`, and `<FeatureLinks>`.
+- `.vitepress/data/flows.ts` — the feature connections per scenario (FlowMap). Scene↔feature mapping.
+- When you add a feature or scene, update these two files and the nav (config.mts) together — skip it and QA catches you.
 
-## 테마 컴포넌트·컨테이너 (component-api.md 상세)
+## Theme components & containers (details in component-api.md)
 
 `<FeatureMeta>` `<Screenshot src alt caption>` `<FeatureLinks ids>` `<FlowMap>` · `::: prompt` `::: warning` `::: talk` `::: tip`.
-`<Screenshot>` = 이미지 슬롯. src가 아직 없는 경로여도 됨 → 캡처 매니페스트가 수집.
+`<Screenshot>` = an image slot. The `src` may point to a path that does not exist yet → the capture manifest collects it.
 
-## 테마 CSS 베이스라인 (`theme/custom.css` 필수 규칙)
+## Theme CSS baseline (required rules in `theme/custom.css`)
 
-VitePress 기본 navbar는 반투명이라 스크롤 시 뒤 콘텐츠가 비치고, 사이드바가 있으면 로고 영역만 사이드바 색(`--vp-c-bg-alt`)을 물려받아 헤더 좌우 색이 갈려 밋밋해 보인다. **생성되는 모든 워크샵의 `custom.css`에 아래를 기본 포함**한다 — 헤더를 불투명 배경 + 하단 경계선으로 채우고, 상단 고정을 명시한다(라이트/다크 공통, `--vp-c-bg` 토큰이라 다크모드도 자동 대응). 브랜드 컬러 토큰은 이 위에 얹는다.
+The default VitePress navbar is semi-transparent, so content behind it shows through on scroll, and when a sidebar is present only the logo area inherits the sidebar color (`--vp-c-bg-alt`), splitting the header into two colors left and right and making it look flat. **Include the following by default in the `custom.css` of every generated workshop** — it fills the header with an opaque background plus a bottom border and pins it to the top (shared across light/dark; because it uses the `--vp-c-bg` token, dark mode adapts automatically). Brand color tokens layer on top of this.
 
 ```css
-/* 헤더(navbar): 불투명 배경 + 상단 고정 — 반투명·좌우색갈림 방지 */
+/* Header (navbar): opaque background + pinned to top — prevents transparency and the left/right color split */
 .VPNav { position: fixed; top: 0; left: 0; right: 0; z-index: var(--vp-z-index-nav); background-color: var(--vp-c-bg); }
 .VPNavBar { background-color: var(--vp-c-bg) !important; border-bottom: 1px solid var(--vp-c-divider); }
-.VPNavBar.has-sidebar .content { background-color: transparent; }  /* 우측 투명 방지 */
-.VPNavBar .title { background-color: transparent; }                /* 로고 영역 회색 제거 → 우측과 색 통일 */
+.VPNavBar.has-sidebar .content { background-color: transparent; }  /* prevent the right side from going transparent */
+.VPNavBar .title { background-color: transparent; }                /* remove the gray from the logo area → unify its color with the right side */
 ```
 
-VitePress 기본 레이아웃은 이미 navbar 높이만큼 본문 상단 여백을 확보하므로 `position: fixed`가 콘텐츠를 가리지 않는다. 테마별로 겹치면 `.VPContent { padding-top: var(--vp-nav-height); }`로 보정.
+The default VitePress layout already reserves top padding on the body equal to the navbar height, so `position: fixed` does not cover content. If a given theme overlaps, correct it with `.VPContent { padding-top: var(--vp-nav-height); }`.
 
 ## i18n
 
-`ko`(기본)·`en`·`ja` 3로케일. `docs/en/`·`docs/ja/`에 미러, `demo_datasets_en/`·`_ja/`에 데이터셋 사본. 로케일 추가·삭제는 brief.yaml의 `languages`로.
+Three locales: `ko` (default), `en`, `ja`. Mirrored under `docs/en/` and `docs/ja/`, with dataset copies under `demo_datasets_en/` and `_ja/`. Add or remove locales via `languages` in brief.yaml.
 
-## 불변식 (QA가 강제)
+## Invariants (enforced by QA)
 
-- 발표자 전용 문구는 `PRESENTER_NOTES.md`에만, `docs/` 안엔 금지.
-- 데이터셋은 3곳 일치: 다운로드 ZIP / `reference/datasets.md` 매핑표 / 기능 페이지 "관련 데이터셋".
-- 약어는 최초 등장 시 풀어쓰기. 근거 없는 수치·경쟁사 단정 금지.
-- 시나리오 A/B의 기능 연결·씬 구성이 페이지 간 일관.
+- Presenter-only wording lives only in `PRESENTER_NOTES.md`, never inside `docs/`.
+- Datasets match in three places: the download ZIP / the mapping table in `reference/datasets.md` / the "Related datasets" section of the feature page.
+- Spell out abbreviations on first appearance. No unsupported figures or definitive claims about competitors.
+- The feature connections and scene composition for scenarios A/B are consistent across pages.
 
-## 빌드·배포
+## Build & deploy
 
-VitePress. `npm run dev`(로컬)·`npm run build`. 데이터셋 ZIP은 Amplify 빌드에서 자동 재생성. main push → Amplify 자동배포.
+VitePress. `npm run dev` (local) · `npm run build`. The dataset ZIPs are regenerated automatically in the Amplify build. Push to main → Amplify auto-deploys.

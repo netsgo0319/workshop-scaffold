@@ -1,123 +1,151 @@
 # workshop-scaffold
 
-**워크샵 주제 · 시나리오 · 대상 고객**만 던지면, 사내에서 검증된 quick-\* VitePress 형식으로 핸즈온 워크샵 한 벌을 만들어 주는 Claude Code 스킬입니다. 기능 카탈로그·시나리오 실습·샘플 데이터셋·AWS 아키텍처 다이어그램·이미지 슬롯·고객 co-branding까지 생성하고, **레벨×직군 페르소나 패널**이 실제로 읽고 개선점을 냅니다.
+*[한국어 가이드](./README.ko.md)*
 
-매번 워크샵을 처음부터 짜는 대신, 검증된 골격을 채우는 방식이라 시간이 크게 줍니다.
+A Claude Code skill that turns a **topic + scenarios + target customer** into a complete hands-on AWS workshop, in the proven quick-\* VitePress format. It generates the feature catalog, scenario labs, sample datasets, AWS architecture diagrams, image slots, and customer co-branding — then a **level×role persona panel** reads it and produces concrete improvements.
 
----
-
-## 무엇이 나오나 (결과물)
-
-한 번 돌리면 대상 폴더에 이런 것들이 생깁니다.
-
-- **VitePress 사이트** — 홈·아젠다·기능 카탈로그·시나리오별 실습 페이지. `npm run docs:dev`로 바로 보고, 빌드해서 배포합니다.
-- **샘플 데이터셋** — 시나리오 로직에 맞는 현실적인 데이터(+필요 시 다국어 로케일 사본).
-- **아키텍처/플로우 다이어그램** — 공식 AWS 아이콘으로 그린 그림.
-- **이미지 슬롯** — 스크린샷·로고가 들어갈 자리를 “빵꾸”로 표시하고, 무엇을 캡처해야 하는지 매니페스트로 정리.
-- **`brief.yaml`** — 이 워크샵의 고정값(고객사·규모·일시·직군·시나리오·기술레벨…)을 담은 단일 출처(SSOT).
-- **`artifacts/`** — 단계별 중간 산출물(연구 결과, 청사진, 페르소나 리뷰 등). 왜 이렇게 만들어졌는지 되짚을 수 있습니다.
+Instead of building a workshop from scratch every time, you fill a validated skeleton. It's self-contained: **with only this skill installed, someone starting from nothing can build and deploy a workshop end to end.**
 
 ---
 
-## 준비물
+## What you get
 
-- **Claude Code** (이 스킬이 도는 환경)
-- **Node.js 18+** — 생성된 VitePress 사이트를 로컬에서 보고 빌드할 때
-- (배포까지 할 경우) AWS 자격증명 — Amplify 등 배포 대상에 맞게
+One run produces, in a target folder:
+
+- **A VitePress site** — home, agenda, feature catalog, and per-scenario lab pages. Preview with `npm run docs:dev`; build and deploy the static output.
+- **Sample datasets** — realistic data that satisfies the scenario logic (+ locale copies if requested).
+- **Architecture / flow diagrams** — drawn with official AWS icons.
+- **Image slots** — every screenshot/logo that isn't in yet is left as a labeled placeholder, and the capture manifest lists exactly what to shoot.
+- **`brief.yaml`** — the single source of truth for this workshop's fixed values (customer, size, date, roles, scenarios, tech level…).
+- **`artifacts/`** — the intermediate output of each stage (research facts, blueprint, persona reviews), so decisions are traceable.
 
 ---
 
-## 설치
+## Requirements
 
-Claude Code의 스킬 디렉토리에 클론하면 끝입니다.
+- **Claude Code** — the environment this skill runs in.
+- **Node.js 18+** — to preview and build the generated VitePress site.
+- **AWS credentials** — only if you deploy (e.g. to AWS Amplify).
+
+---
+
+## Install
+
+Clone into your Claude Code skills directory:
 
 ```bash
 git clone https://github.com/netsgo0319/workshop-scaffold-skill.git \
   ~/.claude/skills/workshop-scaffold
 ```
 
-플러그인 마켓플레이스로 배포된 경우 마켓플레이스에서 설치해도 됩니다. 설치 후 Claude Code를 다시 시작하면 스킬 목록에 잡힙니다.
+If it's distributed through a plugin marketplace, install it there instead. Restart Claude Code and the skill appears in the skills list.
 
 ---
 
-## 사용법
+## Quick start (from nothing)
 
-새 워크샵을 만들 **빈 폴더**를 하나 만들고 그 안에서 Claude Code를 실행한 뒤:
+```bash
+# 1. Scaffold an empty workshop into a new folder
+bash ~/.claude/skills/workshop-scaffold/scripts/new-workshop.sh ../my-workshop \
+  --title "ACME × Bedrock" --name my-workshop --color "#0972d3"
+
+cd ../my-workshop && npm install && npm run docs:dev   # preview the empty skeleton
+
+# 2. Fill it with the skill: in Claude Code, run
+/workshop-scaffold
+#    (or just: "build a workshop about … for …")
+```
+
+Intake writes `brief.yaml`, then the pipeline fills and verifies the content stage by stage.
+
+---
+
+## Usage
+
+Create an **empty folder** for the new workshop, start Claude Code in it, then:
 
 ```
 /workshop-scaffold
 ```
 
-또는 자연어로 `"이 주제로 워크샵 만들어줘: …"` 라고 해도 트리거됩니다.
+Natural language works too: `"build a workshop about Claude Code on Bedrock for a food-manufacturing customer."`
 
-그러면 스킬이 아래를 물어봅니다(=`brief.yaml`에 고정될 값들):
+The skill asks for the values that get frozen into `brief.yaml`:
 
-| 물어보는 것 | 예 |
+| Prompted for | Example |
 |---|---|
-| 주제 · 대상 AWS 서비스 | "Claude Code on Bedrock", "AgentCore" |
-| 청중 (레벨 × 직군) | L200 개발자, L300 아키텍트 … |
-| 시나리오 수 · 제목 | 3개: 개인 생산성 / 데이터 분석 / 외부 연동 |
-| 소요시간 · 형식 | 4.5시간 · 실습(hands-on) / 부스(booth) / 발표주도 |
-| 언어 | ko / en / ja |
-| 고객사 | 이름 · 로고 · 업종 · 기술레벨 |
-| 실행 모드 | `staged`(기본) 또는 `oneshot` |
+| Topic · target AWS services | "Claude Code on Bedrock", "AgentCore" |
+| Audience (level × role) | L200 developer, L300 architect … |
+| Scenario count · titles | 3: personal productivity / data analysis / external integration |
+| Duration · format | 4.5h · hands-on / booth / presenter-led |
+| Languages | ko / en / ja |
+| Customer | name · logo · industry · tech level |
+| Run mode | `staged` (default) or `oneshot` |
 
-입력 예시는 [`assets/brief.example.yaml`](assets/brief.example.yaml)를, 실제로 돌린 결과 예시는 [`examples/hanbitpay/`](examples/hanbitpay/)를 참고하세요.
-
----
-
-## 진행 흐름 (8단계)
-
-스킬은 이 순서로 돕니다. `staged` 모드에서는 **★ 단계에서 잠깐 멈춰 확인을 요청**하니, 방향이 어긋나면 그 자리에서 바로잡을 수 있습니다.
-
-1. **인테이크** — 위 값들을 받아 `brief.yaml`로 고정
-2. **연구 ★** — 쓰는 AWS 기능을 웹·문서로 검증(GA/리전/preview)하고 신뢰도 라벨을 붙임
-3. **청사진 ★** — 시나리오 아크·씬 분해·기능↔씬 매핑·데이터셋/다이어그램 요구 정리
-4. **생성** — 기능 페이지·씬·데이터셋·다이어그램·이미지 슬롯 채우기
-5. **조립** — VitePress config·내비·다국어 배선 후 빌드
-6. **페르소나 평가** — 청중에 맞는 레벨×직군 패널이 읽고 개선점 도출 → 반영
-7. **QA 게이트** — 에셋·데이터셋·발표자노트·플로우 4축 점검 + 빌드 통과
-8. **핸드오프** — 캡처할 이미지 목록·발표자 노트·배포 안내 정리
-
-**두 가지 모드**
-- `staged` (기본): 연구·청사진 ★ 게이트에서 사람 확인을 받고 진행. 처음 쓰거나 중요한 워크샵에 권장.
-- `oneshot`: 멈춤 없이 끝까지. 단, 연구 신뢰도 라벨과 통과 조건은 그대로 검사하고 위반 시 중단.
+See [`assets/brief.example.yaml`](assets/brief.example.yaml) for the input shape and [`examples/hanbitpay/`](examples/hanbitpay/) for a real run's intermediate artifacts.
 
 ---
 
-## 이 스킬이 지키는 규칙 (알고 쓰세요)
+## The pipeline (8 stages)
 
-결과물의 신뢰를 지키기 위해 스킬이 **일부러 하지 않는 것**들이 있습니다.
+The skill runs these in order. In `staged` mode it **pauses at the ★ stages for your sign-off**, so you can course-correct before it goes further.
 
-- **제품 스크린샷을 AI로 만들어 내지 않습니다.** 스크린샷 자리는 “실제로 이걸 캡처하세요”라는 슬롯으로만 남습니다 — 당일 실제 화면을 찍어 채우는 걸 전제로 합니다.
-- **아키텍처·플로우 다이어그램은 공식 AWS 아이콘**으로만 그립니다.
-- **고객 로고·이름은 실제로 진행하는 고객 워크샵의 co-branding에만** 씁니다. 날조된 추천사·가짜 인용·미승인 로고 사용은 하지 않습니다.
-- **AWS 기능 사실은 기억이 아니라 그때그때 검증**합니다. 리전 가용성·GA/preview는 실행 시점에 다시 확인하며, 검증한 것과 문서에서 읽은 것과 추정한 것을 **라벨로 구분**해 남깁니다.
-- **발표자 전용 내용**(시연 팁 등)은 배포되는 `docs/` 밖 `PRESENTER_NOTES.md`에만 둡니다.
+1. **Intake** — collect the values above → `brief.yaml`
+2. **Research ★** — verify the AWS features used (GA / region / preview) and attach confidence labels
+3. **Blueprint ★** — scenario arc, scene decomposition, feature↔scene mapping, dataset & diagram requirements
+4. **Generate** — fill feature pages, scenes, datasets, diagrams, image slots
+5. **Assemble** — wire up VitePress config / nav / i18n and build
+6. **Persona review** — a level×role panel matching your audience reads it and produces fixes → applied
+7. **QA gate** — check assets, datasets, presenter notes, flows + a passing build
+8. **Handoff** — capture list, presenter notes, deploy instructions
 
-생성된 사이트의 헤더 등 기본 테마는 [`references/format-spec.md`](references/format-spec.md)의 규격을 따릅니다(예: 내비게이션 바는 불투명 배경 + 상단 고정).
+**Two run modes**
+- `staged` (default): stop at the Research and Blueprint ★ gates for human review. Recommended for first-time or high-stakes workshops.
+- `oneshot`: run straight through, still checking the same pass conditions and stopping on violation.
+
+**As a workflow (optional):** [`assets/workshop-pipeline.workflow.mjs`](assets/workshop-pipeline.workflow.mjs) encodes the pipeline as a multi-agent Workflow (parallel research/generation/persona cells) for maximum parallelism. It requires opting into workflow orchestration and honors the same gates.
 
 ---
 
-## 폴더 안내
+## Rules the skill keeps (so you can trust the output)
 
-이용 중에 들여다볼 만한 것들입니다.
+To protect the credibility of what it produces, the skill deliberately **won't** do some things:
 
-| 경로 | 내용 |
+- **It never AI-generates a product screenshot.** Screenshot spots stay as "capture this here" slots — you fill them with the real screen on the day.
+- **Architecture / flow diagrams use official AWS icons only.**
+- **Customer logos/names are only for a genuine customer workshop's co-branding.** No fabricated testimonials, fake quotes, or unapproved logos.
+- **AWS facts are verified fresh, not from memory.** Region availability and GA/preview are re-checked at run time, and what was verified vs. read in docs vs. assumed is kept as an explicit **label**.
+- **Presenter-only content** (demo tips) stays in `PRESENTER_NOTES.md`, outside the deployed `docs/`.
+
+The generated site's base theme follows [`references/format-spec.md`](references/format-spec.md) (e.g. the nav bar is opaque and pinned to the top).
+
+---
+
+## What's in the skill
+
+| Path | What it is |
 |---|---|
-| `SKILL.md` | 스킬 본체(오케스트레이터). Claude가 이 순서대로 실행합니다 |
-| `references/format-spec.md` | 생성물의 구조·테마 규격 |
-| `references/branding.md` | 고객 맞춤·로고·co-branding 규약 |
-| `references/persona-rubric.md` | 레벨×직군 페르소나 평가 기준 |
-| `references/pipeline-contract.md` | 단계별 게이트·산출물 계약(고급/디버깅용) |
-| `references/templates/` | 기능 페이지·씬 템플릿 |
-| `assets/brief.example.yaml` | 입력 값 예시 |
-| `examples/hanbitpay/` | 실제로 돌린 중간 산출물 예시 |
+| `SKILL.md` | The orchestrator Claude follows |
+| `assets/scaffold/` | The empty VitePress skeleton that gets copied and filled |
+| `assets/workshop-pipeline.workflow.mjs` | The pipeline as a multi-agent workflow |
+| `scripts/new-workshop.sh` | Copy the skeleton into a new folder + substitute values |
+| `scripts/workshop-check.sh` | QA gate (assets / datasets / presenter notes / flows + build) |
+| `scripts/image-manifest.mjs` | List capture-pending screenshots |
+| `references/format-spec.md` | Output structure & theme spec |
+| `references/component-api.md` | The VitePress components you write with |
+| `references/research-discipline.md` | How AWS facts get verified & labeled |
+| `references/diagram-recipes.md` | Mermaid / drawio / Excalidraw recipes |
+| `references/persona-rubric.md` | Level×role persona review criteria |
+| `references/branding.md` | Customer tailoring & co-branding rules |
+| `references/pipeline-contract.md` | Per-stage gates & invariants (advanced) |
+| `references/templates/` | Feature-page and scene templates |
+| `assets/brief.example.yaml` | Example input |
+| `examples/hanbitpay/` | A real run's intermediate artifacts |
 
 ---
 
-## 문제가 생기면
+## Troubleshooting
 
-- **스킬이 안 잡혀요** → `~/.claude/skills/workshop-scaffold/SKILL.md`가 있는지 확인하고 Claude Code를 재시작하세요.
-- **빌드가 안 돼요** → 생성된 폴더에서 `npm ci` 후 `npm run docs:build`. Node 18+ 인지 확인.
-- **AWS 기능 정보가 오래돼 보여요** → 리전/GA 정보는 실행 시점 기준입니다. 배포 전 연구 산출물(`artifacts/`)의 라벨과 확인 날짜를 다시 보세요.
+- **The skill isn't picked up** → confirm `~/.claude/skills/workshop-scaffold/SKILL.md` exists and restart Claude Code.
+- **The build fails** → in the generated folder, `npm ci` then `npm run docs:build`. Check you're on Node 18+.
+- **AWS info looks stale** → region/GA facts are point-in-time. Before deploying, re-check the labels and `confirmed_date` in `artifacts/`.

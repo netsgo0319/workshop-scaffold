@@ -1,55 +1,55 @@
-# 템플릿 · 기능 1장 (features/{id}.md)
+# Template · one feature page (features/{id}.md)
 
-quick-* 워크샵의 기능 카탈로그 1페이지. `{{...}}`를 채운다. 실제 예: `ai-passport docs/features/a-01-schedule.md`.
+One page of the feature catalog for a quick-* workshop. Fill in the `{{...}}`. Real example: `ai-passport docs/features/a-01-schedule.md`.
 
 ```md
-# {{기능명}}
+# {{feature name}}
 
-<FeatureMeta scenario="{{A}}" scenes="{{PRE, Scene 1, Scene 6}}" icon="{{아이콘키}}" />
+<FeatureMeta scenario="{{A}}" scenes="{{PRE, Scene 1, Scene 6}}" icon="{{icon key}}" />
 
-> **시나리오 {{A}} · {{Scene 1}}** — {{한 줄 맥락}}
+> **Scenario {{A}} · {{Scene 1}}** — {{one-line context}}
 
-## 기능 설명
+## Feature description
 
-{{기능이 무엇이고 어떻게 동작하는지 2~4문장. 함정·제약이 있으면 여기서. 관련 기능은 [링크](./{{other-id}})로.}}
+{{What the feature is and how it works, 2–4 sentences. If there are pitfalls or constraints, here. Link related features with [link](./{{other-id}}).}}
 
-<Screenshot src="/images/{{scenario_a}}/{{01_xxx}}.png" alt="{{무엇을 보여주는 화면인지}}" caption="{{한 줄 캡션}}" />
+<Screenshot src="/images/{{scenario_a}}/{{01_xxx}}.png" alt="{{what screen this shows}}" caption="{{one-line caption}}" />
 
-## 화면에서 보이는 것
+## What you see on screen
 
-| 항목 | 내용 |
+| Item | Detail |
 |------|------|
-| 설정 | {{...}} |
-| 동작 | {{...}} |
-| 가치 | {{사용자가 얻는 것}} |
+| Setup | {{...}} |
+| Behavior | {{...}} |
+| Value | {{what the user gets}} |
 
-## 해볼 프롬프트
+## Prompt to try
 
-::: prompt {{프롬프트 제목}}
+::: prompt {{prompt title}}
 ​```text
-{{참가자가 실제로 입력할 프롬프트. 데이터셋 경로를 정확히.}}
+{{The prompt the participant actually types. Get the dataset path exact.}}
 ​```
 :::
 
-::: warning {{함정·필수 준비}}
-{{빠뜨리면 시연이 깨지는 것, 또는 흔한 실수}}
+::: warning {{pitfall / required prep}}
+{{Something that breaks the demo if omitted, or a common mistake}}
 :::
 
-## 이 기능의 발표 포인트
+## Talking points for this feature
 
 ::: talk
-- "{{발표자가 말할 한 문장}}"
-- "{{가치를 각인시키는 문장}}"
+- "{{one sentence the presenter says}}"
+- "{{a sentence that makes the value stick}}"
 :::
 
-## 관련 데이터셋
+## Related datasets
 
-- `{{scenario_a/xxx.csv}}` — {{역할}}
+- `{{scenario_a/xxx.csv}}` — {{role}}
 ```
 
-## 채움 규칙
+## Fill-in rules
 
-- `<Screenshot>` 슬롯은 **실제 캡처 대상**. src는 아직 없는 경로여도 됨(빵꾸) → `image-manifest.mjs`가 수집.
-- `icon` 키는 `.vitepress/data/features.ts`에 정의된 아이콘과 일치해야 함(`component-api.md`).
-- `tech_level`이 낮으면 기능 설명을 늘리고 함정을 줄인다. 높으면 반대.
-- 텍스트 최소화 — 표·프롬프트·스크린샷으로 설명이 원칙.
+- A `<Screenshot>` slot is an **actual capture target**. The src may point to a path that does not exist yet (a gap) → `image-manifest.mjs` collects it.
+- The `icon` key must match an icon defined in `.vitepress/data/features.ts` (`component-api.md`).
+- When `tech_level` is low, expand the feature description and reduce pitfalls. When high, the reverse.
+- Minimize text — the principle is to explain with tables, prompts, and screenshots.

@@ -1,48 +1,48 @@
-# 페르소나 평가 루브릭
+# Persona evaluation rubric
 
-생성된 워크샵이 "만든 사람에게만 말이 되는" 상태로 나가지 않게, 레벨×직군 페르소나가 실제로 읽고 개선점을 확정한다. 생성→적대검증→종합 워크플로우로 돌린다(페르소나 병렬 → 심각도 정렬 → 적용 루프).
+So the generated workshop does not ship in a state that "only makes sense to the person who made it," level × role personas actually read it and finalize the improvements. Run it as a generate → adversarial-review → synthesis workflow (personas in parallel → sort by severity → apply loop).
 
-## 매트릭스 — 청중에 맞는 셀만 활성화
+## Matrix — activate only the cells that fit the audience
 
-`brief.yaml`의 청중 지정에 해당하는 셀만 돌린다. 전부 돌리면 낭비.
+Run only the cells corresponding to the audience specified in `brief.yaml`. Running them all is wasteful.
 
-| 레벨 \ 직군 | 개발자 | 아키텍트 | 의사결정자/PM | 운영/SRE | 보안 | 데이터/ML |
+| Level \ Role | Developer | Architect | Decision-maker/PM | Ops/SRE | Security | Data/ML |
 |---|---|---|---|---|---|---|
-| L100 입문 | ✔ | | ✔ | | | |
+| L100 intro | ✔ | | ✔ | | | |
 | L200 | ✔ | ✔ | | ✔ | | ✔ |
 | L300 | ✔ | ✔ | | ✔ | ✔ | ✔ |
 | L400+ | | ✔ | | | ✔ | |
 
-- **레벨**은 전제 지식·설명 밀도·실습 난이도를 판정한다. L100은 손잡고 가는가, L400은 함정·트레이드오프까지 가는가.
-- **직군**은 관심사를 판정한다. 이 직군이 궁금한 걸 다루는가, 관심 없는 걸 길게 다루지 않는가.
+- **Level** judges prerequisite knowledge, explanation density, and hands-on difficulty. Does L100 hold your hand, does L400 go all the way to pitfalls and trade-offs.
+- **Role** judges concerns. Does it cover what this role wants to know, and does it avoid dwelling at length on what they don't care about.
 
-## 각 페르소나가 산출하는 것 (스키마 고정)
+## What each persona produces (fixed schema)
 
 ```yaml
-persona: "L200 / 운영·SRE"
+persona: "L200 / Ops·SRE"
 findings:
   - severity: blocker | major | minor
-    axis: 막힘 | 니즈미스매치 | 활용사례부적합 | 난이도점프 | 용어
-    where: "scenario-a/scene3.md 12번째 줄 / features/a-04"
-    problem: "이 레벨이 모르는 약어가 설명 없이 나온다"
-    fix: "구체적 수정안 — 무엇을 어떻게 바꿔라 (추상적 '개선 필요' 금지)"
+    axis: stuck | needs-mismatch | use-case-unfit | difficulty-jump | terminology
+    where: "scenario-a/scene3.md line 12 / features/a-04"
+    problem: "an abbreviation this level doesn't know appears without explanation"
+    fix: "concrete fix — change what, how (no abstract 'needs improvement')"
 ```
 
-**평가 축:**
-- **막힘** — 용어가 설명 없이 튐, 사전지식 가정, 실습 스텝 점프.
-- **니즈 미스매치** — 이 직군이 궁금한 걸 안 다룸 / 관심 없는 걸 과다.
-- **활용사례 부적합** — 우리(고객) 상황에 대입이 안 됨.
-- **난이도 점프** — 인접 씬 사이 난이도가 급등.
+**Evaluation axes:**
+- **stuck** — a term pops up without explanation, prior knowledge assumed, a jump in the hands-on steps.
+- **needs mismatch** — doesn't cover what this role wants to know / too much of what they don't care about.
+- **use-case unfit** — can't be mapped onto our (the customer's) situation.
+- **difficulty jump** — difficulty spikes between adjacent scenes.
 
-## 정직 규칙
+## Honesty rules
 
-- **"다 좋다"는 리뷰는 무효 처리.** 각 페르소나는 최소 2개 결함을 진지하게 시도한다. 못 찾으면 그렇게 명시.
-- 심각도는 냉정하게. blocker = 이 페르소나가 실습을 못 끝냄. major = 끝내지만 오해·이탈. minor = 다듬기.
+- **A "all good" review is treated as void.** Each persona seriously attempts at least 2 defects. If it can't find any, it says so explicitly.
+- Be cold about severity. blocker = this persona can't finish the hands-on. major = finishes, but with misunderstanding or drop-off. minor = polish.
 
-## 종합·적용 루프
+## Synthesis & apply loop
 
-1. 전 페르소나 findings 취합 → 같은 where/문제 중복 제거.
-2. 심각도 정렬(blocker → major → minor).
-3. **blocker·major 전부 적용**, minor는 SA 판단.
-4. 재빌드 후 blocker가 남았으면 1회 더 반복(최대 2회전).
-5. 남은 미적용 항목은 핸드오프 리포트에 "알려진 한계"로 명시.
+1. Gather findings from all personas → dedupe the same where/problem.
+2. Sort by severity (blocker → major → minor).
+3. **Apply all blocker & major**; minor is the SA's call.
+4. If blockers remain after rebuild, repeat once more (max 2 rounds).
+5. State any remaining unapplied items as "known limitations" in the handoff report.

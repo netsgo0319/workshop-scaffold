@@ -1,47 +1,47 @@
-# 템플릿 · 실습 씬 (scenario-{x}/scene{n}.md)
+# Template · hands-on scene (scenario-{x}/scene{n}.md)
 
-스토리형 실습 한 장면. 참가자가 따라 하며 다음 씬으로 자연스럽게 이어진다. 실제 예: `ai-passport docs/scenario-a/scene1.md`.
+One scene of a story-style hands-on lab. The participant follows along and flows naturally into the next scene. Real example: `ai-passport docs/scenario-a/scene1.md`.
 
 ```md
-# Scene {{n}} · {{장면 제목}}
+# Scene {{n}} · {{scene title}}
 
-<FeatureMeta scenario="{{A}}" scenes="{{Scene 1 · 슬라이드 3}}" icon="{{아이콘키}}" />
+<FeatureMeta scenario="{{A}}" scenes="{{Scene 1 · slide 3}}" icon="{{icon key}}" />
 
-> {{장면을 여는 내러티브 1~2문장. 사용자가 처한 상황.}}
+> {{1–2 sentences of narrative that open the scene. The situation the user is in.}}
 
-{{무슨 일이 벌어지는지 1~2문장. 관련 기능은 [링크](/features/{{id}}).}}
+{{1–2 sentences on what happens. Link related features with [link](/features/{{id}}).}}
 
-<Screenshot src="/images/{{scenario_a}}/{{scene1}}.png" alt="{{화면}}" caption="{{캡션}}" />
+<Screenshot src="/images/{{scenario_a}}/{{scene1}}.png" alt="{{screen}}" caption="{{caption}}" />
 
-## 무슨 일이 일어나는가
+## What happens
 
-| 기능 | 동작 |
+| Feature | Behavior |
 |------|------|
-| **{{기능}}** | {{이 씬에서 하는 일}} |
+| **{{feature}}** | {{what it does in this scene}} |
 
-## 진행 흐름
+## How it flows
 
-{{참가자가 실제로 누르는·입력하는 순서. 다음 씬으로의 전환을 명시.}}
-→ [Scene {{n+1}}](./scene{{n+1}})로 이어집니다.
+{{The order the participant actually clicks/types. State the transition into the next scene.}}
+→ Continues to [Scene {{n+1}}](./scene{{n+1}}).
 
-## 이 장면의 기능
+## Features in this scene
 
 <FeatureLinks ids="{{a-01-xxx,a-02-yyy}}" />
 
-## 핵심 포인트
+## Key points
 
 ::: talk
-- "{{발표자 대사 — 이 장면의 메시지}}"
+- "{{presenter line — the message of this scene}}"
 :::
 
-## 관련 데이터셋
+## Related datasets
 
-- `{{scenario_a/xxx.csv}}` — {{역할}}
+- `{{scenario_a/xxx.csv}}` — {{role}}
 ```
 
-## 채움 규칙
+## Fill-in rules
 
-- 씬은 **하나의 use_case**(brief.yaml)에 대응. 아크 전체가 use_cases를 커버하게.
-- `무슨 일이 일어나는가` 표의 기능은 전부 features/에 페이지가 있어야 하고 `<FeatureLinks ids>`와 일치.
-- 인접 씬 간 **난이도 점프 금지**(페르소나 평가의 감점 축).
-- 다음 씬 전환을 반드시 명시 — 스토리가 끊기지 않게.
+- A scene maps to **a single use_case** (brief.yaml). Have the whole arc cover the use_cases.
+- Every feature in the `What happens` table must have a page under features/ and match `<FeatureLinks ids>`.
+- **No difficulty jump between adjacent scenes** (a deduction axis in the persona evaluation).
+- Always state the transition into the next scene — so the story does not break.

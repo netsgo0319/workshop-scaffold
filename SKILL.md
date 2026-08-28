@@ -1,44 +1,62 @@
 ---
 name: workshop-scaffold
-description: SA가 워크샵 주제·시나리오·대상 고객을 던지면 검증된 quick-* VitePress 형식으로 워크샵 한 벌(기능 카탈로그·시나리오 실습·데이터셋·다이어그램·이미지 슬롯·고객 브랜딩)을 생성하고, 레벨×직군 페르소나 패널로 평가·개선까지 수행한다. 트리거: "워크샵 만들어줘", "핸즈온 워크샵 스캐폴드", "이 주제로 워크샵", workshop scaffold/builder.
+description: Generate a complete hands-on AWS workshop from a topic, scenarios, and target customer. Produces a proven quick-* VitePress site (feature catalog, scenario labs, sample datasets, AWS architecture diagrams, image slots, customer co-branding) and evaluates it with a level×role persona panel to lock in improvements. Triggers: "build a workshop", "workshop scaffold/builder", "make a hands-on workshop", "이 주제로 워크샵 만들어줘", "핸즈온 워크샵 스캐폴드".
 ---
 
 # Workshop Scaffold
 
-## 이 스킬이 하는 일 (WHAT)
+## What this skill does (WHAT)
 
-주제 + 시나리오 + 대상 고객(레벨·직군·업종·로고)을 받아 **quick-\* VitePress 워크샵 한 벌**을 만든다. 형식은 `references/format-spec.md`에 규격화돼 있고, 빈 골격은 `assets/scaffold/`에 있다. 텍스트는 최소화하고 다이어그램·이미지 슬롯으로 설명한다.
+Take a topic + scenarios + target customer (level, role, industry, logo) and produce **one complete quick-\* VitePress workshop**. The format is specified in `references/format-spec.md`; the empty skeleton lives in `assets/scaffold/`. Keep text minimal — explain with diagrams and image slots.
 
-## 언제 쓰나 (WHY)
+This skill is self-contained: a user with nothing but this skill can build and deploy a workshop end to end. The skeleton (`assets/scaffold/`), the scripts (`scripts/`), and the reference docs are all bundled here.
 
-- 형식이 이미 `ai-passport`·`media-briefing` 두 워크샵에서 검증됨 → 매번 처음부터 짜지 말고 이 골격을 채운다.
-- AWS 기능은 기억이 아니라 **그때그때 검증**해야 함(GA/리전/preview) → 파이프라인에 연구 게이트가 내장돼 있다.
-- 만든 사람에게만 말이 되는 워크샵을 막기 위해 → 레벨×직군 페르소나가 실제로 읽고 개선점을 낸다.
+## When to use it (WHY)
 
-## 어떻게 (HOW) — 파이프라인 8단계
+- The format is already proven in the `ai-passport` and `media-briefing` workshops → fill this skeleton instead of building from scratch every time.
+- AWS capabilities must be verified fresh (GA/region/preview), not recalled from memory → a research gate is built into the pipeline.
+- To prevent a workshop that only makes sense to its author → a level×role persona panel actually reads it and produces concrete improvements.
 
-`brief.yaml`의 `mode`가 `staged`(기본)면 ★게이트에서 SA 확인을 받고, `oneshot`이면 게이트 없이 진행하되 연구 신뢰도 라벨은 유지한다.
+## How (HOW) — the 8-stage pipeline
 
-1. **인테이크** — SA에게 받는다: 주제, 대상 AWS 서비스, 청중(레벨×직군), 시나리오 수/제목, 소요시간, 형식(부스/실습/발표주도), 언어, 고객사(이름·로고·업종·기술레벨), `mode`. → `brief.yaml`
-2. **연구 ★** — `references/research-discipline.md`대로 기능을 웹+AWS문서로 검증. GA/리전/preview와 신뢰도 라벨(검증/문서/추정)을 붙인 `feature-facts.md`. 추정을 검증으로 위장 금지.
-3. **청사진 ★** — 시나리오 아크·씬 분해·기능→씬 매핑·데이터셋 요구·다이어그램 목록. → `blueprint.md`
-4. **생성** — `references/templates/`로 기능장·씬·데이터셋(+로케일)·다이어그램·이미지 매니페스트를 채운다. 고객 맞춤은 `references/branding.md`.
-5. **조립** — `assets/scaffold/`를 `scripts/new-workshop.sh`로 복사·치환 → VitePress config/nav/i18n 배선 → 빌드.
-6. **페르소나 평가** — `references/persona-rubric.md`의 레벨×직군 패널(청중에 맞는 셀만). 병렬 리뷰 → 심각도 정렬 → blocker/major 적용 → 재빌드.
-7. **QA 게이트** — `scripts/workshop-check.sh`(에셋·데이터셋·발표자노트·플로우) + 빌드 통과.
-8. **핸드오프** — 이미지 캡처 매니페스트(`scripts/image-manifest.mjs`), 발표자 노트, Amplify 배포 안내.
+If `brief.yaml`'s `mode` is `staged` (default), stop at each ★ gate for SA sign-off; if `oneshot`, proceed without stopping but check the same pass conditions and preserve the research confidence labels.
 
-## 하네스 계약 (반드시 준수)
+1. **Intake** — collect from the SA: topic, target AWS services, audience (level×role), scenario count/titles, duration, format (booth / hands-on / presenter-led), languages, customer (name, logo, industry, tech level), and `mode`. → `brief.yaml`
+2. **Research ★** — verify each feature via web + AWS docs per `references/research-discipline.md`. Record GA/region/preview and a confidence label (verified / documented / assumed / needs-check) in `artifacts/02-feature-facts.md`. Never disguise an assumption as verified.
+3. **Blueprint ★** — scenario arc, scene decomposition (difficulty), feature→scene mapping, dataset requirements, diagram list, open questions. → `artifacts/03-blueprint.md`
+4. **Generate** — fill feature pages, scenes, datasets (+ locales), diagrams, and the image manifest using `references/templates/` and `references/diagram-recipes.md`. Customer tailoring per `references/branding.md`.
+5. **Assemble** — copy the skeleton with `scripts/new-workshop.sh`, wire up VitePress config / nav / i18n, and build.
+6. **Persona review** — run the level×role panel from `references/persona-rubric.md` (only the cells matching the audience). Parallel reviews → severity-sorted → apply blocker/major fixes → rebuild.
+7. **QA gate** — `scripts/workshop-check.sh` (assets, datasets, presenter notes, flows) + a passing build.
+8. **Handoff** — image capture manifest (`scripts/image-manifest.mjs`), presenter notes, deploy instructions, remaining needs-check / known limitations.
 
-단계별 게이트·절차·산출물 I/O·모델 예산·실패 처리는 `references/pipeline-contract.md`에 전부 명시돼 있다. 실행 전 이 문서를 읽고, 특히 공통 불변식을 지킨다: **산출물은 파일로**(다음 단계는 파일을 읽음), **모델은 난이도로 선택**(어려운 추론엔 opus+high, 병렬·기계적 단계엔 저렴한 모델) + **스톨 내성**(재시도·작업 분할·시드 압축·resume), **구조화출력 실패는 셀 단위 격리**, **brief.yaml은 read-only SSOT**, **요청 수==산출 수 검증**, **신뢰도 라벨 보존**. staged 모드는 ★게이트(연구·청사진)에서 SA 서명, oneshot도 동일 통과조건을 검사해 위반 시 중단.
+## Two ways to run the pipeline
 
-## 규칙 (협상 불가)
+- **Interactively (default)** — you (Claude Code) drive the 8 stages directly, following this file and the harness contract. Best for `staged` mode where the SA reviews at each ★ gate.
+- **As a workflow** — `assets/workshop-pipeline.workflow.mjs` encodes the pipeline as a multi-agent Workflow (parallel research/generation/persona cells with structured outputs). Use it for `oneshot` or when you want maximum parallelism. It requires the user to opt into workflow orchestration. The workflow honors the same gates and invariants as the interactive path.
 
-- **제품 스크린샷은 생성하지 않는다.** `<Screenshot>` 슬롯은 실제 캡처 대상으로만 매니페스트에 남긴다. SD/Bedrock 이미지는 개념 삽화·배경·페르소나용으로만, 라벨을 붙여서.
-- **아키텍처·플로우 다이어그램은 공식 AWS 아이콘**(drawio AWS4 / `aws-diagram-design`)으로 실제 생성한다. 임의 아이콘 금지.
-- **고객 로고·이름**은 실제 SA 주도 고객 워크샵의 co-branding에만. 로고 원본은 고객/브랜드 소스에서. **날조된 추천사·가짜 인용 금지.**
-- **발표자 전용 문구**(녹화 지시·시연 눈속임)는 `docs/` 밖 `PRESENTER_NOTES.md`에만. 배포 페이지에 새지 않게.
+## Getting started from nothing
 
-## 참조
+```bash
+# 1. Create the workshop skeleton in a new folder and substitute basic values
+bash scripts/new-workshop.sh ../my-workshop --title "ACME × Bedrock" --name my-workshop --color "#0972d3"
+cd ../my-workshop && npm install && npm run docs:dev   # preview the empty skeleton
 
-형식 규격 `references/format-spec.md` · 컴포넌트 문법 `references/component-api.md` · 템플릿 `references/templates/` · 페르소나 `references/persona-rubric.md` · 연구 규율 `references/research-discipline.md` · 다이어그램 `references/diagram-recipes.md` · 브랜딩 `references/branding.md`.
+# 2. Run the skill to fill it: invoke /workshop-scaffold (or "build a workshop about …")
+#    Intake writes brief.yaml, then stages 2–8 fill and verify the content.
+```
+
+## Harness contract (must follow)
+
+Every gate, procedure, artifact I/O, model budget, and failure-handling rule is spelled out in `references/pipeline-contract.md`. Read it before running and honor the common invariants: **artifacts are files** (the next stage reads the file), **choose the model by difficulty** (strongest model + high effort for the hardest reasoning; cheap models for parallel/mechanical stages) **with stall resilience** (retry / split / compress / resume), **isolate structured-output failures per cell**, **`brief.yaml` is a read-only SSOT**, **verify request-count == output-count**, **preserve confidence labels**. In `staged` mode the SA signs off at the ★ gates (research, blueprint); `oneshot` checks the same pass conditions and stops on violation.
+
+## Rules (non-negotiable)
+
+- **Never generate a product screenshot.** `<Screenshot>` slots are left as real capture targets in the manifest. Stable Diffusion / Bedrock images are for conceptual illustration, backgrounds, and persona avatars only — and always labeled.
+- **Architecture and flow diagrams use official AWS icons** (drawio AWS4 / the `aws-diagram-design` skill). No improvised icons.
+- **Customer logos/names** are only for a genuine SA-led customer workshop's co-branding. Source logos from the customer / official brand assets. **No fabricated testimonials or fake quotes.**
+- **Presenter-only wording** (recording cues, demo sleight-of-hand) lives only in `PRESENTER_NOTES.md`, outside `docs/` — never leaking into the deployed pages.
+
+## References
+
+Format spec `references/format-spec.md` · component API `references/component-api.md` · templates `references/templates/` · personas `references/persona-rubric.md` · research discipline `references/research-discipline.md` · diagrams `references/diagram-recipes.md` · branding `references/branding.md` · workflow `assets/workshop-pipeline.workflow.mjs` · example run `examples/hanbitpay/`.
