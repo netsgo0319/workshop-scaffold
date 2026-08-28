@@ -1,0 +1,12 @@
+{
+  "name": "workshop-scaffold-marketplace",
+  "description": "AWS workshop tooling for SAs: the workshop-scaffold pipeline plugin with standalone fact-check and persona-review skills.",
+  "owner": { "name": "yejinkm" },
+  "plugins": [
+    {
+      "name": "workshop-scaffold",
+      "source": "./",
+      "description": "Generate a hands-on AWS workshop from a topic, scenarios, and target customer (quick-* VitePress format) — plus standalone aws-fact-check and persona-review skills, /new-workshop and /workshop-check commands."
+    }
+  ]
+}

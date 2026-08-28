@@ -24,6 +24,22 @@ customer:
 | `use_cases` | the backbone of the scenario arc. Make each scene map to at least one use_case |
 | `name`/`logo` | co-branding slots on the home hero, the scenario index intro, and the presentation cover |
 
+## Design derivation (colors & mood)
+
+Intake **asks** for design preferences (`design:` block in brief.yaml) — but every field accepts `auto`. When auto, derive and **label the result `derived`** (vs `given`); never present a derived palette as the customer's official one.
+
+| Field | If SA gave it | If `auto` — derive from |
+|---|---|---|
+| `primary_color` | use as-is | the customer logo's dominant color (sample the actual asset), else the customer's official brand color, else the topic service's brand tone |
+| `accent_color` | use as-is | a complement/analog of primary with AA contrast on both light/dark backgrounds |
+| `mood` | drives copy tone, illustration style, `::: warning` depth | industry + audience: finance/enterprise → restrained & precise; consumer/food/retail → warm & friendly; developer-heavy audience → terse, code-first |
+| `appearance` | use as-is | quick-* convention is `dark` default; go `light` when the customer's brand assets clearly assume light |
+
+Rules:
+- Derived values are written back into `brief.yaml`'s design block **at intake** (before it freezes) with `source: derived` — later changes go through the amendment flow like any brief value.
+- The palette lands in `theme/custom.css` (`--vp-c-brand-*` + the `__THEME_COLOR__` token) — one place, never scattered inline.
+- Mood keywords steer conceptual illustrations (diagram-recipes.md) and hero copy; they never justify inventing customer-brand assets.
+
 ## Icon & logo sources
 
 - **AWS service icons**: only the official AWS Architecture Icons (AWS4). From the `aws-diagram-design` skill bundle or the drawio AWS4 set. Use an unverified `resIcon` only after a render test.

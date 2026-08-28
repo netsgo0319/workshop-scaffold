@@ -106,7 +106,19 @@ while IFS= read -r f; do
 done < <(find docs -path '*scenario-*' -name 'scene*.md' 2>/dev/null)
 [ "$noviz" = "0" ] && ok "Visual-first: every scene page has a visual"
 
-# 6) --full: build
+# 6) Walkthrough status (GATE-6d) — informational: warn when content exists but no clean walkthrough round yet
+if [ -d artifacts ] && find docs -path '*scenario-*' -name '*.md' 2>/dev/null | grep -q .; then
+  last_walk=$(ls artifacts/06b-walkthrough-round-*.md 2>/dev/null | sort | tail -1)
+  if [ -z "$last_walk" ]; then
+    warn "No participant walkthrough round yet (GATE-6d) — run /workshop-walkthrough before QA"
+  elif grep -q '^WALKTHROUGH_RESULT: CLEAN$' "$last_walk"; then
+    ok "Walkthrough clean ($last_walk)"
+  else
+    warn "Latest walkthrough round is not CLEAN ($last_walk) — fix and re-walk with a fresh agent"
+  fi
+fi
+
+# 7) --full: build
 if [ "$FULL" = "1" ]; then
   if [ -f package.json ]; then
     if npm run docs:build >/tmp/ws_build.log 2>&1; then ok "VitePress build succeeded"; else warn "Build failed (see /tmp/ws_build.log)"; fi

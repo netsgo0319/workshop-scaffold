@@ -5,6 +5,8 @@ description: Generate a complete hands-on AWS workshop from a topic, scenarios, 
 
 # Workshop Scaffold
 
+> **Paths in this file**: shared assets live at the **plugin root**, two levels up from this SKILL.md — `references/`, `scripts/`, `assets/`, `examples/` all resolve there. `scripts/gate.sh` / `workshop-check.sh` / `image-manifest.mjs` invocations inside pipeline stages refer to the **generated workshop's own bundled copies** (cwd = the workshop), which `new-workshop.sh` puts there.
+
 Turn **topic + scenarios + target customer** into one complete quick-\* VitePress workshop. Fill the proven skeleton in `assets/scaffold/` — don't invent structure. Explain with visuals, not prose (INV-8). Verify AWS facts fresh, never from memory.
 
 Self-contained: skeleton, scripts, hooks, and references are all bundled — a user starting from nothing can build and deploy end to end.
@@ -13,12 +15,12 @@ Self-contained: skeleton, scripts, hooks, and references are all bundled — a u
 
 `mode: staged` (default) stops at ★ for SA sign-off; `oneshot` runs through but checks the same conditions and halts on violation. **Before starting each stage 2–8, run `bash scripts/gate.sh <stage>`** — it hard-blocks if the previous stage's artifact is missing (INV-1a). Full per-stage contract: `references/pipeline-contract.md`.
 
-1. **Intake** → `brief.yaml`. Collect: topic, AWS services, audience (level×role), scenarios, duration, format (hands-on/booth/presenter-led), languages, mode, customer (name, industry, tech level) — **and ask for the customer logo and favicon image files** (path or drag-and-drop; explicit `null` if none — never skip the question, never fabricate a logo).
+1. **Intake** → `brief.yaml`. Collect: topic, AWS services, audience (level×role), scenarios, duration, format (hands-on/booth/presenter-led), languages, mode, customer (name, industry, tech level) — **ask for the customer logo and favicon image files** (path or drag-and-drop; explicit `null` if none — never skip the question, never fabricate a logo) — **and ask for design preferences** (primary/accent color, mood, dark/light; `auto` accepted → derive from the customer brand + topic service + audience persona per `references/branding.md` §Design derivation, labeled `source: derived`).
 2. **Research ★** → `artifacts/02-feature-facts.md` + `02a-company-context.md` + `02b-audience-context.md`. **Fan out in parallel**: a company cell, an audience-roles cell, and one cell per technology (GA/region/preview verified per `references/research-discipline.md`, confidence-labeled). Merge tech cells; cells in == rows out.
 3. **Blueprint ★** → `artifacts/03-blueprint.md`. Scenario arc, scene decomposition, feature→scene mapping, dataset needs, **a planned visual per scene** (GATE-3e), open questions — all closed before stage 4.
 4. **Generate** → `docs/**`, `demo_datasets/**`, `artifacts/04-image-manifest.json`. Fill templates (`references/templates/`), datasets, diagrams (`references/diagram-recipes.md`), branding (`references/branding.md`). Every scene page gets ≥1 visual (GATE-4d).
 5. **Assemble** → build. Copy skeleton via `scripts/new-workshop.sh` (bundles the enforcement scripts + `.claude/` hooks into the workshop), wire config/nav/i18n, build clean.
-6. **Persona review** → `artifacts/06-persona-review.md`. Level×role panel per `references/persona-rubric.md`, parallel cells, apply blockers/majors, rebuild.
+6. **Persona review + walkthrough loop** → `artifacts/06-persona-review.md`, `06b-walkthrough-round-N.md`. Level×role panel per `references/persona-rubric.md` (parallel cells, apply blockers/majors, rebuild). Then GATE-6d: a fresh-eyes participant agent **follows the workshop for real** — executes every executable step, checks links/datasets/prompts/build/deploy — an author agent fixes what it hits, and the loop repeats with a new fresh agent until a clean round (max 3).
 7. **QA** → `artifacts/07-qa-report.md`. `bash scripts/workshop-check.sh --full`.
 8. **Handoff** → `artifacts/08-handoff.md`. Capture manifest (`node scripts/image-manifest.mjs`), presenter notes pointer, deploy steps, known limitations.
 

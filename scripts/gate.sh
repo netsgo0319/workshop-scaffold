@@ -31,7 +31,19 @@ case "$STAGE" in
   5) need artifacts/03-blueprint.md "3"; [ -d docs ] || { echo "BLOCKED: docs/ missing — run generation (4) first." >&2; exit 2; } ;;
   6) need artifacts/03-blueprint.md "3"
      [ -d docs/.vitepress/dist ] || echo "note: no build output found — persona review should read a built site (run stage 5)." >&2 ;;
-  7) need artifacts/06-persona-review.md "6 (persona review)" ;;
+  7)
+    need artifacts/06-persona-review.md "6 (persona review)"
+    # GATE-6d: QA may not start until a walkthrough round ended clean (machine-checked marker).
+    last_walk=$(ls artifacts/06b-walkthrough-round-*.md 2>/dev/null | sort | tail -1)
+    if [ -z "$last_walk" ]; then
+      echo "BLOCKED (GATE-6d): no walkthrough round found (artifacts/06b-walkthrough-round-N.md) — run the participant walkthrough loop (/workshop-walkthrough) before QA." >&2
+      exit 2
+    fi
+    if ! grep -q '^WALKTHROUGH_RESULT: CLEAN$' "$last_walk"; then
+      echo "BLOCKED (GATE-6d): latest walkthrough round ($last_walk) is not CLEAN — fix blocker/major findings and re-walk with a fresh agent." >&2
+      exit 2
+    fi
+    ;;
   8) need artifacts/07-qa-report.md "7 (QA)" ;;
   *) echo "Usage: gate.sh <stage 2..8> [root]" >&2; exit 2 ;;
 esac
