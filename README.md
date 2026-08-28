@@ -8,6 +8,14 @@ Instead of building a workshop from scratch every time, you fill a validated ske
 
 ---
 
+## Demo
+
+[![Demo — the pipeline drawing diagrams and pages](media/demo-poster.png)](media/demo.mp4)
+
+*Click to play (mp4) — the skill generating a workshop live: mermaid flows, AWS architecture diagrams, scenario pages.*
+
+---
+
 ## What you get
 
 One run produces, in a target folder:
@@ -96,18 +104,20 @@ See [`assets/brief.example.yaml`](assets/brief.example.yaml) for the input shape
 
 ---
 
-## The pipeline (8 stages)
+## What it does, in order (the pipeline)
 
-The skill runs these in order. In `staged` mode it **pauses at the ★ stages for your sign-off**, so you can course-correct before it goes further.
+Every run walks these 8 stages. In `staged` mode it **pauses at ★ for your sign-off**.
 
-1. **Intake** — collect the values above → `brief.yaml`
-2. **Research ★** — verify the AWS features used (GA / region / preview) and attach confidence labels
-3. **Blueprint ★** — scenario arc, scene decomposition, feature↔scene mapping, dataset & diagram requirements
-4. **Generate** — fill feature pages, scenes, datasets, diagrams, image slots
-5. **Assemble** — wire up VitePress config / nav / i18n and build
-6. **Persona review + walkthrough loop** — a level×role panel reads it, then a fresh-eyes participant agent **follows it for real** (executes steps, checks links/datasets/build/deploy); an author agent fixes what it hits, looping until a clean round
-7. **QA gate** — check assets, datasets, presenter notes, flows + a passing build
-8. **Handoff** — capture list, presenter notes, deploy instructions
+| # | Stage | What the skill does for you | Output |
+|---|---|---|---|
+| 1 | **Intake** | Asks for everything up front: topic, audience (level×role), scenarios, duration, format, languages — plus the **customer logo & favicon files** and **design preferences** (colors/mood; `auto` = derived from brand + service + persona) | `brief.yaml` (frozen SSOT) |
+| 2 | **Research ★** | **Parallel research cells** — the company, the audience's actual roles, and each AWS technology (GA/region/preview verified fresh, confidence-labeled) | `02-feature-facts.md`, `02a/02b` context |
+| 3 | **Blueprint ★** | Scenario arc & scene decomposition with **difficulty leveling** (adjacent scenes jump ≤1 level, ≤2 new concepts per scene), feature↔scene mapping, a planned visual per scene, dataset & diagram requirements | `03-blueprint.md` |
+| 4 | **Generate** | **Feature catalog** (one page per feature), **scenario lab pages with copy-paste-ready prompts & code samples**, **realistic datasets** that satisfy the scene logic, **diagrams** (mermaid flows, drawio AWS-icon architecture), screenshot slots | `docs/**`, `demo_datasets/**` |
+| 5 | **Assemble** | Wires VitePress config/nav/i18n, builds clean (0 dead links) | built site |
+| 6 | **Review** | Two-layer review: a **level×role persona panel** critiques it, then a **fresh-eyes participant agent actually follows it** (runs steps, checks links/datasets/build/deploy) and an author agent fixes what it hits — looping until a clean round | `06-persona-review.md`, `06b-walkthrough-*` |
+| 7 | **QA** | Mechanical checks (datasets, presenter notes, emoji, assets, visual-first) + build — QA is hard-blocked until the walkthrough is clean | `07-qa-report.md` |
+| 8 | **Handoff** | Screenshot capture list, presenter notes pointer, deploy steps, human rehearsal checklist & known limitations | `08-handoff.md` |
 
 **Two run modes**
 - `staged` (default): stop at the Research and Blueprint ★ gates for human review. Recommended for first-time or high-stakes workshops.
