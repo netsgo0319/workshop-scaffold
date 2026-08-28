@@ -34,7 +34,7 @@ One run produces, in a target folder:
 **As a plugin (recommended)** — this repo is its own marketplace:
 
 ```bash
-claude plugin marketplace add netsgo0319/workshop-scaffold-skill
+claude plugin marketplace add netsgo0319/workshop-scaffold
 claude plugin install workshop-scaffold
 ```
 
@@ -43,8 +43,8 @@ You get three skills — `workshop-scaffold` (the full pipeline), `aws-fact-chec
 **Or from a local clone** (air-gapped / for development):
 
 ```bash
-git clone https://github.com/netsgo0319/workshop-scaffold-skill.git
-claude plugin marketplace add ./workshop-scaffold-skill
+git clone https://github.com/netsgo0319/workshop-scaffold.git
+claude plugin marketplace add ./workshop-scaffold
 claude plugin install workshop-scaffold
 ```
 

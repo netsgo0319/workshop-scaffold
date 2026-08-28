@@ -36,7 +36,7 @@
 **플러그인으로 설치 (권장)** — 이 레포 자체가 마켓플레이스입니다:
 
 ```bash
-claude plugin marketplace add netsgo0319/workshop-scaffold-skill
+claude plugin marketplace add netsgo0319/workshop-scaffold
 claude plugin install workshop-scaffold
 ```
 
@@ -45,8 +45,8 @@ claude plugin install workshop-scaffold
 **또는 로컬 클론에서** (오프라인/개발용):
 
 ```bash
-git clone https://github.com/netsgo0319/workshop-scaffold-skill.git
-claude plugin marketplace add ./workshop-scaffold-skill
+git clone https://github.com/netsgo0319/workshop-scaffold.git
+claude plugin marketplace add ./workshop-scaffold
 claude plugin install workshop-scaffold
 ```
 
