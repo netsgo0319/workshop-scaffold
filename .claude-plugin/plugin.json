@@ -1,6 +1,6 @@
 {
   "name": "workshop-scaffold",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Generate a hands-on AWS workshop from a topic, scenarios, and target customer in the proven quick-* VitePress format — plus standalone AWS fact-checking and level×role persona review.",
   "author": { "name": "yejinkm" },
   "repository": "https://github.com/netsgo0319/workshop-scaffold",

@@ -857,3 +857,12 @@ a.flowchip--link:hover {
 .VPNavBar { background-color: var(--vp-c-bg) !important; border-bottom: 1px solid var(--vp-c-divider); }
 .VPNavBar.has-sidebar .content { background-color: transparent; }
 .VPNavBar .title { background-color: transparent; }
+
+/* Attribution — shown on every page (layout-bottom slot). Keep discreet. */
+.built-with {
+  text-align: center;
+  padding: 20px 16px 24px;
+  font-size: 12px;
+  color: var(--vp-c-text-3);
+}
+.built-with a { color: var(--vp-c-text-2); text-decoration: underline; }

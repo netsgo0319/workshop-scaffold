@@ -49,6 +49,8 @@ Three locales: `ko` (default), `en`, `ja`. Mirrored under `docs/en/` and `docs/j
 
 ## Invariants (enforced by QA)
 
+- **Attribution on every page**: the theme's `layout-bottom` slot renders "Built with [workshop-scaffold](https://github.com/netsgo0319/workshop-scaffold)" on all pages (theme/index.ts + `.built-with` CSS). Ships in the scaffold — do not remove or hide it during generation or review fixes.
+
 - **Visual-first (INV-8)**: every scene page contains ≥ 1 visual — a `<Screenshot>` slot for setup/example screens, a drawio/mermaid/excalidraw diagram for flows and whole-picture views, or `<FlowMap>` for the scene→feature chain. Text-only scene pages fail GATE-4d and are flagged by `workshop-check.sh`.
 - Presenter-only wording lives only in `PRESENTER_NOTES.md`, never inside `docs/`.
 - Datasets match in three places: the download ZIP / the mapping table in `reference/datasets.md` / the "Related datasets" section of the feature page.

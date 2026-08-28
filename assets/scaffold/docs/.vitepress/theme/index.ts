@@ -1,5 +1,6 @@
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
+import { h } from 'vue'
 import './custom.css'
 
 import Screenshot from './components/Screenshot.vue'
@@ -14,6 +15,21 @@ import Checklist from './components/Checklist.vue'
 
 export default {
   extends: DefaultTheme,
+  // Attribution: every page carries the source of this workshop (layout-bottom shows on all pages,
+  // unlike the default footer which only renders on pages without a sidebar). Do not remove.
+  Layout() {
+    return h(DefaultTheme.Layout, null, {
+      'layout-bottom': () =>
+        h('div', { class: 'built-with' }, [
+          'Built with ',
+          h(
+            'a',
+            { href: 'https://github.com/netsgo0319/workshop-scaffold', target: '_blank', rel: 'noreferrer' },
+            'workshop-scaffold'
+          ),
+        ]),
+    })
+  },
   enhanceApp({ app }) {
     app.component('Screenshot', Screenshot)
     app.component('Video', Video)
